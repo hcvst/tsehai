@@ -1,0 +1,6 @@
+class USER:
+    REPEAT_VISITOR = "REPEAT_VISITOR"
+
+class STATE:
+    STARTED = "STARTED"
+    END = -1
