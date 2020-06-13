@@ -1,3 +1,6 @@
 TELEGRAM_TOKEN = "131224483:AAG6kbFxGJ-QeK0Ju5wIivu-dc8EZ7ZVeWc"
 PERSISTANCE_FILE = "ASEBOT.PICKLE"
-ENDPOINT_BOOKS = ASEBOTASEBOT="http://ase.bot.co.za:1337/books"
+
+API_SERVER = "https://ase.bot.co.za"
+TSEHAI_IMAGE_URL = API_SERVER+"/uploads/tsehai_93aec6be25.jpeg"
+GRAPHQL_ENDPOINT = API_SERVER+"/graphql" 

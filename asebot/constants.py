@@ -3,4 +3,8 @@ class USER:
 
 class STATE:
     STARTED = "STARTED"
+    BROWSE_BOOKS = "BROWSE_BOOKS"
+    READ_BOOK = "READ_BOOK"
+    NEXT_BOOK = "NEXT_BOOK"
+    READING = "READING"
     END = -1
