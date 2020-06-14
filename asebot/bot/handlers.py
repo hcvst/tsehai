@@ -1,14 +1,15 @@
 import logging
+import random
 
-from telegram import ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import (CommandHandler, ConversationHandler, CallbackQueryHandler, Filters,
-                          MessageHandler)
+from telegram import (InlineKeyboardButton, InlineKeyboardMarkup,
+                      ReplyKeyboardMarkup)
+from telegram.ext import (CallbackQueryHandler, CommandHandler,
+                          ConversationHandler, Filters, MessageHandler)
 
 import asebot.api
 import asebot.bot.keyboards as keyboards
 import asebot.config
 from asebot.constants import STATE, USER
-
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +37,7 @@ def main_menu(update, context):
         f"What would you like to do?",
         reply_markup=ReplyKeyboardMarkup([
             ["🏛️ Go to the library", "🏅 View my medals"]
-        ], one_time_keyboard=True, resize_keyboard=True)
+        ], one_time_keyboard=False, resize_keyboard=True)
     )
     return STATE.STARTED
 
@@ -94,12 +95,12 @@ def view_page(update, context):
     pages = context.user_data["book"]["pages"]
     page_idx = context.user_data["page_idx"]
     page = pages[page_idx]
-    
+
     keyboard = ReplyKeyboardMarkup(
-        [['🏛️ To the library', '➡️ Next page']], 
-        one_time_keyboard=False, 
+        [['🏛️ To the library', '➡️ Next page']],
+        one_time_keyboard=False,
         resize_keyboard=True
-        )
+    )
 
     if len(page["images"]) > 0:
         update.message.reply_photo(
@@ -120,26 +121,111 @@ def next_page(update, context):
     next_idx = context.user_data["page_idx"] + 1
     if next_idx == len(context.user_data["book"]["pages"]):
         return book_finished(update, context)
-    context.user_data["page_idx"] = next_idx
-    return view_page(update, context)
+    else:
+        context.user_data["page_idx"] = next_idx
+        return view_page(update, context)
 
 
 def book_finished(update, context):
     user = update.message.from_user
     update.message.reply_text(
-        f"🎉 Well done, {user.first_name}. You've finished the book.\n"
-        "You have won one medal 🥉 Congratualtions."
+        f"🎉 Well done, {user.first_name}. You've finished the book."
     )
-    return main_menu
+    return start_quizz(update, context)
+
+
+def start_quizz(update, context):
+    num_questions = len(context.user_data["book"]["quizz"]["questions"])
+    if num_questions > 0:
+        context.user_data["quizz_idx"] = 0
+        context.user_data["quizz_mistakes"] = 0
+        update.message.reply_text(
+            f"Let's have fun with a quizz. "
+            f"Answer {num_questions} questions to test your understanding. 🤔"
+        )
+        return view_quizz_question(update, context)
+    else:
+        return main_menu(update, context)
+
+
+def view_quizz_question(update, context):
+    quizz_idx = context.user_data["quizz_idx"]
+    qna = context.user_data["book"]["quizz"]["questions"][quizz_idx]
+    question = qna["question"]
+    answers = [qna["answer"]] + [d["wrong_answer"] for d in qna["distractors"]]
+    random.shuffle(answers)
+    text = f"**Question {quizz_idx+1}**: {question}"
+    keyboard = ReplyKeyboardMarkup(
+        [answers],
+        one_time_keyboard=False,
+        resize_keyboard=True)
+    if qna["image"]:
+        update.message.reply_photo(
+            photo=asebot.config.API_SERVER+qna["image"]["url"],
+            caption=text,
+            parse_mode='Markdown',
+            reply_markup=keyboard
+        )
+    else:
+        update.message.reply_markdown(text, reply_markup=keyboard)
+    return STATE.QUIZZ
+
+
+def check_quizz_answer(update, context):
+    provided_answer = update.message.text
+    quizz_idx = context.user_data["quizz_idx"]
+    qna = context.user_data["book"]["quizz"]["questions"][quizz_idx]
+    answer = qna["answer"]
+    if provided_answer == answer:
+        update.message.reply_text("✔️ That is correct.")
+    else:
+        context.user_data["quizz_mistakes"] += 1
+        update.message.reply_text(f"❌ The correct answer is '{answer}'.")
+    return next_quizz_question(update, context)
+
+
+def next_quizz_question(update, context):
+    next_idx = context.user_data["quizz_idx"] + 1
+    if next_idx == len(context.user_data["book"]["quizz"]["questions"]):
+        return quizz_finished(update, context)
+    else:
+        context.user_data["quizz_idx"] = next_idx
+        return view_quizz_question(update, context)
+
+
+def quizz_finished(update, context):
+    user = update.message.from_user
+    quizz_mistakes = context.user_data["quizz_mistakes"]
+    if quizz_mistakes == 0:
+        context.user_data.setdefault(
+            "medals", dict(gold=0, silver=0, bronze=0)
+        )["gold"] += 1
+        update.message.reply_text(
+            f"🎉 Very good, {user.first_name}. "
+            "You answered all questions correctly.\n"
+            "You've won a medal 🏅. "
+            "Congratualtions 🎉.")
+    elif quizz_mistakes == 1:
+        update.message.reply_text(
+            f"🎉 Well done, {user.first_name}. "
+            "You made only one mistake.")
+    else:
+        update.message.reply_text(
+            f"You made a few mistakes, {user.first_name}. "
+            "That's ok. You are still learning.")
+    return main_menu(update, context)
 
 
 def medals(update, context):
+    medals = context.user_data.setdefault(
+        "medals", dict(gold=0, silver=0, bronze=0))
     update.message.reply_text(
         f"🏅 Your Medals\n"
-        "\n"
-        "🥇 Gold - 0\n"
-        "🥈 Silver - 0\n"
-        "🥉 Bronze - 0\n")
+        f"\n"
+        f"🥇 Gold - {medals['gold']}\n"
+        f"🥈 Silver - {medals['silver']}\n"
+        f"🥉 Bronze - {medals['bronze']}")
+    return main_menu(update, context)
 
 
 def return_to_main_menu(update, context):
@@ -152,11 +238,11 @@ def prompt_to_start_over(update, context):
         "Sorry, I cannot help you with that just now.\n"
         "You can start over by pressing /start.",
         reply_markup=ReplyKeyboardMarkup([
-            ["/start"]
-        ], one_time_keyboard=True, resize_keyboard=True))
+            ["/start ↩️"]
+        ], one_time_keyboard=False, resize_keyboard=True))
 
 
-fallback = MessageHandler(Filters.regex(r'.*'), prompt_to_start_over)
+fallback = MessageHandler(Filters.all, prompt_to_start_over)
 
 root_conversation = ConversationHandler(
     entry_points=[CommandHandler('start', start)],
@@ -172,7 +258,13 @@ root_conversation = ConversationHandler(
         STATE.READING: [
             MessageHandler(Filters.regex(r'🏛️'), library),
             MessageHandler(Filters.regex(r'➡️'), next_page)
+        ],
+        STATE.QUIZZ: [
+            MessageHandler(Filters.all, check_quizz_answer)
         ]
+
     },
-    fallbacks=[MessageHandler(Filters.regex(r'.*'), return_to_main_menu)]
+    fallbacks=[MessageHandler(Filters.all, return_to_main_menu)]
+
+
 )

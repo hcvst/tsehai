@@ -7,4 +7,5 @@ class STATE:
     READ_BOOK = "READ_BOOK"
     NEXT_BOOK = "NEXT_BOOK"
     READING = "READING"
+    QUIZZ = "QUIZZ"
     END = -1

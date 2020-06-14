@@ -30,11 +30,26 @@ def load_books():
 
 def load_book(book_id):
     query = gql('''
-        {
-            book(id: %s) {
-                pages {text, images{url}}
-            }
+{
+  book(id: %s) {
+    pages {
+      text
+      images {
+        url
+      }
+    }
+    quizz {
+      questions {
+        question
+        image {url}
+        answer
+        distractors {
+          wrong_answer
         }
+      }
+    }
+  }
+}
     ''' % book_id)
     return client.execute(query)["book"]
 
