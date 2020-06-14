@@ -36,7 +36,7 @@ def main_menu(update, context):
     update.message.reply_text(
         f"What would you like to do?",
         reply_markup=ReplyKeyboardMarkup([
-            ["🏛️ Go to the library", "🏅 View my medals"]
+            ["🏛️ Go to the library", "🏅 See my medals"]
         ], one_time_keyboard=False, resize_keyboard=True)
     )
     return STATE.STARTED
@@ -69,7 +69,8 @@ def view_book(update, context):
         caption=books[book_idx]["title"],
         parse_mode='Markdown',
         reply_markup=ReplyKeyboardMarkup([
-            ['📖 Read this book', '➡️ Next book']
+            ['📖 Read this book'], 
+            ['➡️ Look for another book']
         ], one_time_keyboard=False, resize_keyboard=True)
     )
     return STATE.BROWSE_BOOKS
@@ -97,7 +98,7 @@ def view_page(update, context):
     page = pages[page_idx]
 
     keyboard = ReplyKeyboardMarkup(
-        [['🏛️ To the library', '➡️ Next page']],
+        [['🏛️ Return to the library'], ['➡️ Turn to the next page']],
         one_time_keyboard=False,
         resize_keyboard=True
     )
@@ -156,7 +157,7 @@ def view_quizz_question(update, context):
     random.shuffle(answers)
     text = f"**Question {quizz_idx+1}**: {question}"
     keyboard = ReplyKeyboardMarkup(
-        [answers],
+        [[a] for a in answers],
         one_time_keyboard=False,
         resize_keyboard=True)
     if qna["image"]:
@@ -204,7 +205,7 @@ def quizz_finished(update, context):
             f"🎉 Very good, {user.first_name}. "
             "You answered all questions correctly.\n"
             "You've won a medal 🏅. "
-            "Congratualtions 🎉.")
+            "Congratulations 🎉.")
     elif quizz_mistakes == 1:
         update.message.reply_text(
             f"🎉 Well done, {user.first_name}. "
