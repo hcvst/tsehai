@@ -18,13 +18,20 @@ def error(update, context):
     logger.warning('Update "%s" caused error "%s"', update, context.error)
 
 
+
 def start(update, context):
     user = update.message.from_user
     if not context.user_data.get(USER.REPEAT_VISITOR):
-        update.message.reply_text(f"Hi {user.first_name}. I am Tsehai! 👋")
-        update.message.reply_photo(
-            photo=asebot.config.TSEHAI_IMAGE_URL, caption="Here is a photo of me. 📷")
-        update.message.reply_text(f"It is very nice to meet you.")
+        update.message.reply_text(
+            f"👋 Hello, I'm Tsehai, the reading bot. I will help you to become a better reader."
+            )
+        update.message.reply_text(
+            f"Just read the stories and answer the questions as well as you can."
+            )
+        update.message.reply_text(
+            f"I will show you new stories that match your own reading ability, helping you improve. " 
+            "Are you ready? Let's get started!"
+            )
         context.user_data[USER.REPEAT_VISITOR] = True
     else:
         update.message.reply_text(f"Hello! 👋")
@@ -130,19 +137,20 @@ def next_page(update, context):
 def book_finished(update, context):
     user = update.message.from_user
     update.message.reply_text(
-        f"🎉 Well done, {user.first_name}. You've finished the book."
+        f"🎉 Well done, {user.first_name}."
     )
     return start_quizz(update, context)
 
 
 def start_quizz(update, context):
-    num_questions = len(context.user_data["book"]["quizz"]["questions"])
+    book = context.user_data["book"]
+    title = book["title"]
+    num_questions = len(book["quizz"]["questions"])
     if num_questions > 0:
         context.user_data["quizz_idx"] = 0
         context.user_data["quizz_mistakes"] = 0
-        update.message.reply_text(
-            f"Let's have fun with a quizz. "
-            f"Answer {num_questions} questions to test your understanding. 🤔"
+        update.message.reply_markdown(
+            f"Now, answer {num_questions} questions on __{title}__ as well as you can."
         )
         return view_quizz_question(update, context)
     else:
