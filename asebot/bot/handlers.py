@@ -164,13 +164,12 @@ def book_finished(update, context):
 
 def start_quizz(update, context):
     book = context.user_data["book"]
-    title = book["title"]
     num_questions = len(book["quizz"]["questions"])
     if num_questions > 0:
         context.user_data["quizz_idx"] = 0
         context.user_data["quizz_mistakes"] = 0
         update.message.reply_markdown(
-            f"Now, answer {num_questions} questions on __{title}__ as well as you can."
+            f"Now, answer {num_questions} questions as well as you can."
         )
         return view_quizz_question(update, context)
     else:
