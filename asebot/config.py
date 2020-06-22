@@ -8,3 +8,6 @@ PERSISTANCE_FILE = "ASEBOT.PICKLE"
 API_SERVER = "https://ase.bot.co.za"
 TSEHAI_IMAGE_URL = API_SERVER+"/uploads/tsehai_93aec6be25.jpeg"
 GRAPHQL_ENDPOINT = API_SERVER+"/graphql" 
+
+TEXTTOSPEECH_ENDPOINT = "https://tts.bot.co.za/synthesize"
+TEXTTOSPEECH_AUTH_TOKEN = os.environ["TEXTTOSPEECH_AUTH_TOKEN"]

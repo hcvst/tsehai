@@ -1,6 +1,7 @@
 import logging
 import random
 
+import requests
 from telegram import (InlineKeyboardButton, InlineKeyboardMarkup,
                       ReplyKeyboardMarkup)
 from telegram.ext import (CallbackQueryHandler, CommandHandler,
@@ -18,20 +19,19 @@ def error(update, context):
     logger.warning('Update "%s" caused error "%s"', update, context.error)
 
 
-
 def start(update, context):
     user = update.message.from_user
     if not context.user_data.get(USER.REPEAT_VISITOR):
         update.message.reply_text(
             f"👋 Hello, I'm Tsehai, the reading bot. I will help you to become a better reader."
-            )
+        )
         update.message.reply_text(
             f"Just read the stories and answer the questions as well as you can."
-            )
+        )
         update.message.reply_text(
-            f"I will show you new stories that match your own reading ability, helping you improve. " 
+            f"I will show you new stories that match your own reading ability, helping you improve. "
             "Are you ready? Let's get started!"
-            )
+        )
         context.user_data[USER.REPEAT_VISITOR] = True
     else:
         update.message.reply_text(f"Hello! 👋")
@@ -76,7 +76,7 @@ def view_book(update, context):
         caption=books[book_idx]["title"],
         parse_mode='Markdown',
         reply_markup=ReplyKeyboardMarkup([
-            ['📖 Read this book'], 
+            ['📖 Read this book'],
             ['➡️ Look for another book']
         ], one_time_keyboard=False, resize_keyboard=True)
     )
@@ -105,7 +105,11 @@ def view_page(update, context):
     page = pages[page_idx]
 
     keyboard = ReplyKeyboardMarkup(
-        [['🏛️ Return to the library'], ['➡️ Turn to the next page']],
+        [
+            ['🏛️ Return to the library'],
+            ['👂 Listen to this page'],
+            ['➡️ Turn to the next page']
+        ],
         one_time_keyboard=False,
         resize_keyboard=True
     )
@@ -123,6 +127,22 @@ def view_page(update, context):
             reply_markup=keyboard
         )
     return STATE.READING
+
+
+def text_to_speech(update, context):
+    pages = context.user_data["book"]["pages"]
+    page_idx = context.user_data["page_idx"]
+    page = pages[page_idx]
+    text = page["text"]
+
+    resp = requests.post(
+        url=asebot.config.TEXTTOSPEECH_ENDPOINT,
+        json=dict(text=text),
+        headers=dict(Authorization=asebot.config.TEXTTOSPEECH_AUTH_TOKEN)
+    )
+
+    audio_href = resp.json()["href"]
+    update.message.reply_audio(audio_href)
 
 
 def next_page(update, context):
@@ -266,6 +286,7 @@ root_conversation = ConversationHandler(
         ],
         STATE.READING: [
             MessageHandler(Filters.regex(r'🏛️'), library),
+            MessageHandler(Filters.regex(r'👂'), text_to_speech),
             MessageHandler(Filters.regex(r'➡️'), next_page)
         ],
         STATE.QUIZZ: [
