@@ -142,7 +142,7 @@ def text_to_speech(update, context):
     )
 
     audio_href = resp.json()["href"]
-    update.message.reply_audio(audio_href)
+    update.message.reply_voice(audio_href)
 
 
 def next_page(update, context):
