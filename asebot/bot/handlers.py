@@ -8,7 +8,6 @@ from telegram.ext import (CallbackQueryHandler, CommandHandler,
                           ConversationHandler, Filters, MessageHandler)
 
 import asebot.api
-import asebot.bot.keyboards as keyboards
 import asebot.config
 from asebot.constants import STATE, USER
 
