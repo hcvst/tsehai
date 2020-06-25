@@ -5,6 +5,6 @@
 ```
 
 ## Configure Python pipenv path
-- Run `pipenv --venv` to find path to virtual environemt
+- Run `pipenv --venv` to find path to virtual environment
 - `Ctrl+Shift+T` and search for Python interpreter
 - Set path to Python interpreter
