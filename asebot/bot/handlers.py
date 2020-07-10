@@ -42,7 +42,8 @@ def main_menu(update, context):
     update.message.reply_text(
         f"What would you like to do?",
         reply_markup=ReplyKeyboardMarkup([
-            ["🏛️ Go to the library", "🏅 See my medals"]
+            ["🏅 See my medals"],
+            [ "🏛️ I want to read", "📔 I want english lessons"]
         ], one_time_keyboard=False, resize_keyboard=True)
     )
     return STATE.STARTED
@@ -254,6 +255,16 @@ def medals(update, context):
         f"🥉 Bronze - {medals['bronze']}")
     return main_menu(update, context)
 
+def english_lessons(update,context):
+    update.message.reply_text(
+        f"Great!, What grade are you in?",
+        reply_markup=ReplyKeyboardMarkup([
+            ["1️⃣","2️⃣"],
+            ["3️⃣", "4️⃣"],
+            ["5️⃣","6️⃣"],
+            [ "7️⃣", "8️⃣"]
+        ], one_time_keyboard=False, resize_keyboard=True)
+    )
 
 def return_to_main_menu(update, context):
     update.message.reply_text("Sorry, I don't know how to help you with that.")
@@ -277,6 +288,7 @@ root_conversation = ConversationHandler(
         STATE.STARTED: [
             MessageHandler(Filters.regex(r'🏛️'), library),
             MessageHandler(Filters.regex(r'🏅'), medals),
+            MessageHandler(Filters.regex(r'📔'), english_lessons),
         ],
         STATE.BROWSE_BOOKS: [
             MessageHandler(Filters.regex(r'📖'), read_book),
@@ -290,7 +302,7 @@ root_conversation = ConversationHandler(
         STATE.QUIZZ: [
             MessageHandler(Filters.all, check_quizz_answer)
         ]
-
+        
     },
     fallbacks=[MessageHandler(Filters.all, return_to_main_menu)]
 
