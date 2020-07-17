@@ -43,7 +43,7 @@ def main_menu(update, context):
         f"What would you like to do?",
         reply_markup=ReplyKeyboardMarkup([
             ["🏅 See my medals"],
-            [ "🏛️ I want to read", "📔 I want english lessons"]
+            [ "🏛️ I want to read", "📔 I want English lessons"]
         ], one_time_keyboard=False, resize_keyboard=True)
     )
     return STATE.STARTED
