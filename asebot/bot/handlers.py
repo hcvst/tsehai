@@ -9,6 +9,7 @@ from telegram.ext import (CallbackQueryHandler, CommandHandler,
 
 import asebot.api
 import asebot.config
+from asebot.pointsbrain import points_medals_brain
 from asebot.constants import STATE, USER
 
 logger = logging.getLogger(__name__)
@@ -224,10 +225,12 @@ def next_quizz_question(update, context):
 def quizz_finished(update, context):
     user = update.message.from_user
     quizz_mistakes = context.user_data["quizz_mistakes"]
-    if quizz_mistakes == 0:
-        context.user_data.setdefault(
+    medal = points_medals_brain(context)
+    medalattained = medal['medal']
+    context.user_data.setdefault(
             "medals", dict(gold=0, silver=0, bronze=0)
-        )["gold"] += 1
+        )[f"{medalattained}"] += 1
+    if quizz_mistakes == 0:
         update.message.reply_text(
             f"🎉 Very good, {user.first_name}. "
             "You answered all questions correctly.\n"
