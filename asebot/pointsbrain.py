@@ -3,7 +3,9 @@ import math
 def points_medals_brain(context):
     numberofquestions = len(context.user_data["book"]["quizz"]["questions"])
     incorrectanswers = context.user_data["quizz_mistakes"]
-    percentage=round(incorrectanswers/numberofquestions)
+    correctanswers = numberofquestions - incorrectanswers
+    percentage=round(correctanswers/numberofquestions * 100)
+    print(percentage)
     if percentage == 100:
         medalcalculation = {
             "medal": "gold",
