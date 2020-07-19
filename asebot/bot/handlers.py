@@ -68,6 +68,71 @@ def library(update, context):
         )
         return view_book(update, context)
 
+def reading_level(update, context):
+    context.user_data["levelSelectionPictures"] = asebot.api.load_level_Selection()
+
+    if not context.user_data.get(USER.READING_LEVEL):
+        update.message.reply_text("Wow!")
+        update.message.reply_text("I love reading too!")
+        update.message.reply_text("Look at the pictures and choose your reading level")
+        
+        update.message.reply_photo(
+            photo=asebot.config.API_SERVER+context.user_data["levelSelectionPictures"][0]['Image'][0]['url'],
+            # caption=books[book_idx]["title"],
+            parse_mode='Markdown',
+            reply_markup=ReplyKeyboardMarkup([
+                 ["Level 1️⃣","Level 2️⃣"],
+                ["Level 3️⃣", "Level 4️⃣"]
+            ], one_time_keyboard=False, resize_keyboard=True)
+        )
+        return STATE.READINGLEVEL  
+    else:
+        update.message.reply_text(f"🏛️ The Library")
+        context.user_data["book_idx"] = 0
+        # context.user_data[USER.READING_LEVEL] = false
+    
+        if len(context.user_data["books"]) == 0:
+            update.message.reply_text(
+                "There are no books available at the moment. "
+                "Please try again later."
+            )
+            return STATE.END
+        else:
+            update.message.reply_text(
+                "Let's find a book for you."
+            )
+            return view_book(update, context)
+        # return view_book(update, context)
+
+# Level assignment is not dynamic ==>
+
+def assign_reading_level_1(update, context):
+    context.user_data[USER.READING_LEVEL] = 1
+    context.user_data["books"] = asebot.api.load_books_on_level(context.user_data[USER.READING_LEVEL])
+    update.message.reply_text(f"Level 1 assigned")
+    return reading_level(update, context)
+
+
+def assign_reading_level_2(update, context):
+    context.user_data[USER.READING_LEVEL] = 2
+    context.user_data["books"] = asebot.api.load_books_on_level(context.user_data[USER.READING_LEVEL])
+    update.message.reply_text(f"Level 2 assigned")
+    return reading_level(update, context)
+
+def assign_reading_level_3(update, context):
+    context.user_data[USER.READING_LEVEL] = 3
+    context.user_data["books"] = asebot.api.load_books_on_level(context.user_data[USER.READING_LEVEL])
+    update.message.reply_text(f"Level 3 assigned")
+    return reading_level(update, context)
+
+def assign_reading_level_4(update, context):
+    context.user_data[USER.READING_LEVEL] = 4
+    context.user_data["books"] = asebot.api.load_books_on_level(context.user_data[USER.READING_LEVEL])
+    update.message.reply_text(f"Level 4 assigned")
+    return reading_level(update, context)
+
+# ============>
+
 
 def view_book(update, context):
     books = context.user_data["books"]
@@ -289,7 +354,7 @@ root_conversation = ConversationHandler(
     entry_points=[CommandHandler('start', start)],
     states={
         STATE.STARTED: [
-            MessageHandler(Filters.regex(r'🏛️'), library),
+            MessageHandler(Filters.regex(r'🏛️'), reading_level),
             MessageHandler(Filters.regex(r'🏅'), medals),
             MessageHandler(Filters.regex(r'📔'), english_lessons),
         ],
@@ -298,13 +363,23 @@ root_conversation = ConversationHandler(
             MessageHandler(Filters.regex(r'➡️'), next_book)
         ],
         STATE.READING: [
-            MessageHandler(Filters.regex(r'🏛️'), library),
+            MessageHandler(Filters.regex(r'🏛️'), reading_level),
             MessageHandler(Filters.regex(r'👂'), text_to_speech),
             MessageHandler(Filters.regex(r'➡️'), next_page)
         ],
         STATE.QUIZZ: [
             MessageHandler(Filters.all, check_quizz_answer)
+        ],
+        STATE.READINGLEVEL: [
+            # MessageHandler(Filters.regex(r'1️⃣'), reading_level)
+            MessageHandler(Filters.regex(r'1️⃣'), assign_reading_level_1),
+            MessageHandler(Filters.regex(r'2️⃣'), assign_reading_level_2),
+            MessageHandler(Filters.regex(r'3️⃣'), assign_reading_level_3),
+            MessageHandler(Filters.regex(r'4️⃣'), assign_reading_level_4)
         ]
+        # STATE.GRADE: [
+        #     MessageHandler(Filters.all, check_quizz_answer)
+        # ]
         
     },
     fallbacks=[MessageHandler(Filters.all, return_to_main_menu)]
