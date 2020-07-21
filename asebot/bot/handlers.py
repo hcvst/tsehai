@@ -11,6 +11,8 @@ import asebot.api
 import asebot.config
 from asebot.pointsbrain import points_medals_brain
 from asebot.constants import STATE, USER
+from asebot.bot.alocate_points import alocate_points
+from asebot.bot.leaderboard import leaderboard
 
 logger = logging.getLogger(__name__)
 
@@ -40,6 +42,19 @@ def start(update, context):
 
 
 def main_menu(update, context):
+    chatId = update.message.chat
+    testBoard = leaderboard(update)
+
+    for user in testBoard:
+        if user['chatId'] == f"{chatId.id}":
+            update.message.reply_text(
+                f"You  --->  {user['totalPoints']}"
+            )
+        else:
+            update.message.reply_text(
+                f"{user['username']}  --->  {user['totalPoints']}"
+            )
+
     update.message.reply_text(
         f"What would you like to do?",
         reply_markup=ReplyKeyboardMarkup([
@@ -289,9 +304,14 @@ def next_quizz_question(update, context):
 
 def quizz_finished(update, context):
     user = update.message.from_user
+
     quizz_mistakes = context.user_data["quizz_mistakes"]
     medal = points_medals_brain(context)
     medalattained = medal['medal']
+
+    alocate_points(update, medal['percentage'])
+    #test.createPoints(chatId.id , user.first_name, medal['percentage'])
+
     context.user_data.setdefault(
             "medals", dict(gold=0, silver=0, bronze=0)
         )[f"{medalattained}"] += 1
