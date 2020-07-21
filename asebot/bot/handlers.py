@@ -9,6 +9,7 @@ from telegram.ext import (CallbackQueryHandler, CommandHandler,
 
 import asebot.api
 import asebot.config
+import asebot.pointsbrain
 from asebot.pointsbrain import points_medals_brain
 from asebot.constants import STATE, USER
 from asebot.bot.alocate_points import alocate_points
@@ -245,6 +246,7 @@ def book_finished(update, context):
 
 def start_quizz(update, context):
     book = context.user_data["book"]
+    asebot.pointsbrain.validate_quizz_taken(context)
     num_questions = len(book["quizz"]["questions"])
     if num_questions > 0:
         context.user_data["quizz_idx"] = 0
@@ -313,7 +315,7 @@ def quizz_finished(update, context):
     #test.createPoints(chatId.id , user.first_name, medal['percentage'])
 
     context.user_data.setdefault(
-            "medals", dict(gold=0, silver=0, bronze=0)
+            "medals", dict(gold=0, silver=0, bronze=0,nomedal=0)
         )[f"{medalattained}"] += 1
     if quizz_mistakes == 0:
         update.message.reply_text(
