@@ -32,6 +32,7 @@ def load_book(book_id):
     query = gql('''
 {
   book(id: %s) {
+    title
     pages {
       text
       images {
