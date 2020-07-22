@@ -311,6 +311,7 @@ def quizz_finished(update, context):
     quizz_mistakes = context.user_data["quizz_mistakes"]
     medal = points_medals_brain(context)
     medalattained = medal['medal']
+
     alocate_points(update, medal['percentage'])
     #test.createPoints(chatId.id , user.first_name, medal['percentage'])
 
