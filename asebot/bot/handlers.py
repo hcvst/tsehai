@@ -301,7 +301,7 @@ def quizz_finished(update, context):
         update.message.reply_text(
             f"🎉 Very good, {user.first_name}. "
             "You answered all questions correctly.\n"
-            "You've won a medal 🏅. "
+            "Check Your medal's 🏅 if you were writing the quiz for the first time."
             "Congratulations 🎉.")
     elif quizz_mistakes == 1:
         update.message.reply_text(

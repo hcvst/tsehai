@@ -38,12 +38,12 @@ def points_medals_brain(context):
                 "medal": "gold",
                 "percentage": percentage
                 }
-        elif percentage >= 90 or percentage <= 80:
+        elif percentage <= 90 and percentage >= 80:
             medalcalculation = {
                 "medal": "silver",
                 "percentage": percentage
                 }
-        elif percentage >= 79 or percentage <= 70:
+        elif percentage <= 79 and percentage >= 70:
             medalcalculation = {
                 "medal": "bronze",
                 "percentage": percentage
@@ -53,10 +53,11 @@ def points_medals_brain(context):
                 "medal": "nomedal",
                 "percentage": percentage
                 }
-            return medalcalculation    
+        return medalcalculation    
     else:
         medalcalculation = {
             "medal": "nomedal",
             "percentage": percentage
             }
         return medalcalculation
+    
