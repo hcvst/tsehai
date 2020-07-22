@@ -12,6 +12,8 @@ import asebot.config
 import asebot.pointsbrain
 from asebot.pointsbrain import points_medals_brain
 from asebot.constants import STATE, USER
+from asebot.bot.alocate_points import alocate_points
+from asebot.bot.leaderboard import leaderboard
 
 logger = logging.getLogger(__name__)
 
@@ -41,6 +43,19 @@ def start(update, context):
 
 
 def main_menu(update, context):
+    # chatId = update.message.chat
+    # testBoard = leaderboard(update)
+
+    # for user in testBoard:
+    #     if user['chatId'] == f"{chatId.id}":
+    #         update.message.reply_text(
+    #             f"You  --->  {user['totalPoints']}"
+    #         )
+    #     else:
+    #         update.message.reply_text(
+    #             f"{user['username']}  --->  {user['totalPoints']}"
+    #         )
+
     update.message.reply_text(
         f"What would you like to do?",
         reply_markup=ReplyKeyboardMarkup([
@@ -232,6 +247,7 @@ def book_finished(update, context):
 def start_quizz(update, context):
     book = context.user_data["book"]
     asebot.pointsbrain.validate_quizz_taken(context)
+    
     num_questions = len(book["quizz"]["questions"])
     if num_questions > 0:
         context.user_data["quizz_idx"] = 0
@@ -291,9 +307,14 @@ def next_quizz_question(update, context):
 
 def quizz_finished(update, context):
     user = update.message.from_user
+
     quizz_mistakes = context.user_data["quizz_mistakes"]
     medal = points_medals_brain(context)
     medalattained = medal['medal']
+
+    alocate_points(update, medal['percentage'])
+    #test.createPoints(chatId.id , user.first_name, medal['percentage'])
+
     context.user_data.setdefault(
             "medals", dict(gold=0, silver=0, bronze=0,nomedal=0)
         )[f"{medalattained}"] += 1
@@ -322,7 +343,30 @@ def medals(update, context):
         f"\n"
         f"🥇 Gold - {medals['gold']}\n"
         f"🥈 Silver - {medals['silver']}\n"
-        f"🥉 Bronze - {medals['bronze']}")
+        f"🥉 Bronze - {medals['bronze']}",
+        
+        reply_markup=ReplyKeyboardMarkup([
+            ["📋 See Leaderboard"]
+        ], one_time_keyboard=False, resize_keyboard=True)
+    )
+    return STATE.STARTED
+
+def display_leaderboard(update, context):
+    chatId = update.message.chat
+    board = leaderboard(update)
+
+    update.message.reply_text(
+        "The Leaderboard\n"
+    )
+    for user in board:
+        if user['chatId'] == f"{chatId.id}":
+            update.message.reply_text(
+                f"You  --->  {user['totalPoints']}"
+            )
+        else:
+            update.message.reply_text(
+                f"{user['username']}  --->  {user['totalPoints']}"
+            )
     return main_menu(update, context)
 
 def english_lessons(update,context):
@@ -359,6 +403,7 @@ root_conversation = ConversationHandler(
             MessageHandler(Filters.regex(r'🏛️'), reading_level),
             MessageHandler(Filters.regex(r'🏅'), medals),
             MessageHandler(Filters.regex(r'📔'), english_lessons),
+            MessageHandler(Filters.regex(r'📋'), display_leaderboard),
         ],
         STATE.BROWSE_BOOKS: [
             MessageHandler(Filters.regex(r'📖'), read_book),
