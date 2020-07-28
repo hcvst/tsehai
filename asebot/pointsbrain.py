@@ -29,15 +29,9 @@ def validate_quizz_taken(context):
                 "percentage": None
                 }
             }
-<<<<<<< HEAD
-        
-    print(context.user_data)
-
-=======
     print(context.user_data)
 
     
->>>>>>> 899f1f429d9ea7a8bf046f4182db445c53af1a2a
 
 def points_medals_brain(context):
     numberofquestions = len(context.user_data["book"]["quizz"]["questions"])

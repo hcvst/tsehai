@@ -464,17 +464,15 @@ root_conversation = ConversationHandler(
             MessageHandler(Filters.regex(r'3️⃣'), assign_reading_level_3),
             MessageHandler(Filters.regex(r'4️⃣'), assign_reading_level_4)
         ],
-<<<<<<< HEAD
+        
         STATE.GRADE: [
             MessageHandler(Filters.all, english_lessons.assign_grade),
-        ]
+        ],
         
-=======
         STATE.BOOK_REDIRECT: [
             MessageHandler(Filters.regex(r'↩️'), main_menu),
             MessageHandler(Filters.regex(r'/'), book_redirect)
         ]
->>>>>>> 899f1f429d9ea7a8bf046f4182db445c53af1a2a
     },
     fallbacks=[MessageHandler(Filters.all, return_to_main_menu)]
 

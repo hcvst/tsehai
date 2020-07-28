@@ -12,9 +12,6 @@ class STATE:
     READING = "READING"
     QUIZZ = "QUIZZ"
     READINGLEVEL = "READINGLEVEL"
-<<<<<<< HEAD
     GRADE = "GRADE"
-=======
     BOOK_REDIRECT = "BOOK_REDIRECT"
->>>>>>> 899f1f429d9ea7a8bf046f4182db445c53af1a2a
     END = -1
