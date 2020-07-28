@@ -14,8 +14,10 @@ from asebot.pointsbrain import points_medals_brain
 from asebot.constants import STATE, USER
 from asebot.bot.alocate_points import alocate_points
 from asebot.bot.leaderboard import leaderboard
+from asebot.bot.english_lessons.english import English
 
 logger = logging.getLogger(__name__)
+english_lessons = English()
 
 
 def error(update, context):
@@ -43,18 +45,6 @@ def start(update, context):
 
 
 def main_menu(update, context):
-    # chatId = update.message.chat
-    # testBoard = leaderboard(update)
-
-    # for user in testBoard:
-    #     if user['chatId'] == f"{chatId.id}":
-    #         update.message.reply_text(
-    #             f"You  --->  {user['totalPoints']}"
-    #         )
-    #     else:
-    #         update.message.reply_text(
-    #             f"{user['username']}  --->  {user['totalPoints']}"
-    #         )
 
     update.message.reply_text(
         f"What would you like to do?",
@@ -369,17 +359,6 @@ def display_leaderboard(update, context):
             )
     return main_menu(update, context)
 
-def english_lessons(update,context):
-    update.message.reply_text(
-        f"Great!, What grade are you in?",
-        reply_markup=ReplyKeyboardMarkup([
-            ["1️⃣","2️⃣"],
-            ["3️⃣", "4️⃣"],
-            ["5️⃣","6️⃣"],
-            [ "7️⃣", "8️⃣"]
-        ], one_time_keyboard=False, resize_keyboard=True)
-    )
-
 def return_to_main_menu(update, context):
     update.message.reply_text("Sorry, I don't know how to help you with that.")
     return main_menu(update, context)
@@ -402,7 +381,7 @@ root_conversation = ConversationHandler(
         STATE.STARTED: [
             MessageHandler(Filters.regex(r'🏛️'), reading_level),
             MessageHandler(Filters.regex(r'🏅'), medals),
-            MessageHandler(Filters.regex(r'📔'), english_lessons),
+            MessageHandler(Filters.regex(r'📔'), english_lessons.english_lessons),
             MessageHandler(Filters.regex(r'📋'), display_leaderboard),
         ],
         STATE.BROWSE_BOOKS: [
@@ -423,10 +402,10 @@ root_conversation = ConversationHandler(
             MessageHandler(Filters.regex(r'2️⃣'), assign_reading_level_2),
             MessageHandler(Filters.regex(r'3️⃣'), assign_reading_level_3),
             MessageHandler(Filters.regex(r'4️⃣'), assign_reading_level_4)
+        ],
+        STATE.GRADE: [
+            MessageHandler(Filters.all, english_lessons.assign_grade),
         ]
-        # STATE.GRADE: [
-        #     MessageHandler(Filters.all, check_quizz_answer)
-        # ]
         
     },
     fallbacks=[MessageHandler(Filters.all, return_to_main_menu)]

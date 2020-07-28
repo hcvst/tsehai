@@ -23,8 +23,9 @@ def validate_quizz_taken(context):
             "level": f"{userlevel}",
             "title": f"{booktitle}"
             }
-    print(context.user_data[USER.QUIZZ_TAKEN[int(context.user_data["books"][context.user_data["book_idx"]]["id"])]])
-    
+        
+    print(context.user_data)
+
 
 def points_medals_brain(context):
     numberofquestions = len(context.user_data["book"]["quizz"]["questions"])
