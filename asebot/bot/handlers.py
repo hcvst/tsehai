@@ -75,9 +75,13 @@ def library(update, context):
     if len(context.user_data["books"]) == 0:
         update.message.reply_text(
             "There are no books available at the moment. "
-            "Please try again later."
-        )
-        return STATE.END
+            "Please try again later.",
+            reply_markup=ReplyKeyboardMarkup([
+                ["🏅 See my medals"],
+                [ "🏛️ I want to read", "📔 I want English lessons"]
+                ], one_time_keyboard=False, resize_keyboard=True)
+            )
+        return STATE.STARTED
     else:
         update.message.reply_text(
             "Let's find a book for you."
@@ -110,9 +114,13 @@ def reading_level(update, context):
         if len(context.user_data["books"]) == 0:
             update.message.reply_text(
                 "There are no books available at the moment. "
-                "Please try again later."
-            )
-            return STATE.END
+                "Please try again later.",
+                reply_markup=ReplyKeyboardMarkup([
+                    ["🏅 See my medals"],
+                    [ "🏛️ I want to read", "📔 I want English lessons"]
+                    ], one_time_keyboard=False, resize_keyboard=True)
+                )
+            return STATE.STARTED
         else:
             update.message.reply_text(
                 "Let's find a book for you."
@@ -124,6 +132,7 @@ def reading_level(update, context):
 
 def assign_reading_level_1(update, context):
     context.user_data[USER.READING_LEVEL] = 1
+    context.user_data[USER.QUIZZ_TAKEN] = None
     context.user_data["books"] = asebot.api.load_books_on_level(context.user_data[USER.READING_LEVEL])
     update.message.reply_text(f"Level 1 assigned")
     return reading_level(update, context)
@@ -131,18 +140,21 @@ def assign_reading_level_1(update, context):
 
 def assign_reading_level_2(update, context):
     context.user_data[USER.READING_LEVEL] = 2
+    context.user_data[USER.QUIZZ_TAKEN] = None
     context.user_data["books"] = asebot.api.load_books_on_level(context.user_data[USER.READING_LEVEL])
     update.message.reply_text(f"Level 2 assigned")
     return reading_level(update, context)
 
 def assign_reading_level_3(update, context):
     context.user_data[USER.READING_LEVEL] = 3
+    context.user_data[USER.QUIZZ_TAKEN] = None
     context.user_data["books"] = asebot.api.load_books_on_level(context.user_data[USER.READING_LEVEL])
     update.message.reply_text(f"Level 3 assigned")
     return reading_level(update, context)
 
 def assign_reading_level_4(update, context):
     context.user_data[USER.READING_LEVEL] = 4
+    context.user_data[USER.QUIZZ_TAKEN] = None
     context.user_data["books"] = asebot.api.load_books_on_level(context.user_data[USER.READING_LEVEL])
     update.message.reply_text(f"Level 4 assigned")
     return reading_level(update, context)
@@ -332,6 +344,7 @@ def quizz_finished(update, context):
         update.message.reply_text(
             f"You made a few mistakes, {user.first_name}. "
             "That's ok. You are still learning.")
+    asebot.pointsbrain.update_reading_level(update, context)
     return main_menu(update, context)
 
 
@@ -346,10 +359,56 @@ def medals(update, context):
         f"🥉 Bronze - {medals['bronze']}",
         
         reply_markup=ReplyKeyboardMarkup([
-            ["📋 See Leaderboard"]
+            ["📋 See Leaderboard", "🎓 See My Quiz Marks"]
         ], one_time_keyboard=False, resize_keyboard=True)
     )
     return STATE.STARTED
+
+def display_quiz_marks(update, context):
+    books = context.user_data[USER.QUIZZ_TAKEN]
+    numberOfquizz = len(context.user_data[USER.QUIZZ_TAKEN])
+    average = 0
+    update.message.reply_text(
+        "Your Quiz Marks\n"
+        "To go to a book click on its Book Id value"
+    )
+    
+    if books is not None:
+        for book_elements in books:
+            if books[book_elements]['level'] == context.user_data[USER.READING_LEVEL]:
+                if books[book_elements]['percentage'] >= 80:
+                    result = "Passed"
+                else:
+                    result = "Failure"
+                average = average + books[book_elements]["percentage"]
+                update.message.reply_text(
+                    f"Book Id = /{books[book_elements]['book_idx']} Book Title = {books[book_elements]['title']}  results =  {result} percentage = {books[book_elements]['percentage']}"
+                    )
+        update.message.reply_text(
+            f"Your average at the moment is {average/numberOfquizz}\n"
+            )
+    elif numberOfquizz == 0:
+        update.message.reply_text(
+            "You have not written any quizzes on this level Yet\n"
+            "Good Luck with Your reading!!!\n"
+            )
+    
+    update.message.reply_text(
+        f"What would you like to do?",
+        reply_markup=ReplyKeyboardMarkup([
+            ['↩️ Return to the library']
+        ], one_time_keyboard=False, resize_keyboard=True)
+    )
+    return STATE.BOOK_REDIRECT
+
+def book_redirect(update, context):
+    book_redirect_id = int(update.message.text.replace('/',''))
+    books = context.user_data[USER.QUIZZ_TAKEN]
+    for book_elements in books:
+        if books[book_elements]['book_idx'] == book_redirect_id and books[book_elements]['level'] == context.user_data[USER.READING_LEVEL]:
+            context.user_data["book_idx"] = book_redirect_id
+            return view_book(update, context)
+    return return_to_main_menu(update, context)
 
 def display_leaderboard(update, context):
     chatId = update.message.chat
@@ -404,6 +463,7 @@ root_conversation = ConversationHandler(
             MessageHandler(Filters.regex(r'🏅'), medals),
             MessageHandler(Filters.regex(r'📔'), english_lessons),
             MessageHandler(Filters.regex(r'📋'), display_leaderboard),
+            MessageHandler(Filters.regex(r'🎓'), display_quiz_marks),
         ],
         STATE.BROWSE_BOOKS: [
             MessageHandler(Filters.regex(r'📖'), read_book),
@@ -423,11 +483,11 @@ root_conversation = ConversationHandler(
             MessageHandler(Filters.regex(r'2️⃣'), assign_reading_level_2),
             MessageHandler(Filters.regex(r'3️⃣'), assign_reading_level_3),
             MessageHandler(Filters.regex(r'4️⃣'), assign_reading_level_4)
+        ],
+        STATE.BOOK_REDIRECT: [
+            MessageHandler(Filters.regex(r'↩️'), main_menu),
+            MessageHandler(Filters.regex(r'/'), book_redirect)
         ]
-        # STATE.GRADE: [
-        #     MessageHandler(Filters.all, check_quizz_answer)
-        # ]
-        
     },
     fallbacks=[MessageHandler(Filters.all, return_to_main_menu)]
 
