@@ -366,13 +366,14 @@ def medals(update, context):
 
 def display_quiz_marks(update, context):
     books = context.user_data[USER.QUIZZ_TAKEN]
-    numberOfquizz = len(context.user_data[USER.QUIZZ_TAKEN])
     average = 0
+    numberOfquizz = 0
     update.message.reply_text(
         "Your Quiz Marks\n"
         "To go to a book click on its Book Id value"
     )
-    
+    if context.user_data[USER.QUIZZ_TAKEN] is not None:
+        numberOfquizz = len(context.user_data[USER.QUIZZ_TAKEN])
     if books is not None:
         for book_elements in books:
             if books[book_elements]['level'] == context.user_data[USER.READING_LEVEL]:
