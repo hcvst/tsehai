@@ -38,6 +38,7 @@ def start(update, context):
             "Are you ready? Let's get started!"
         )
         context.user_data[USER.REPEAT_VISITOR] = True
+        context.user_data[USER.QUIZZ_TAKEN] = None
     else:
         update.message.reply_text(f"Hello! 👋")
         update.message.reply_text(f"Nice to see you again, {user.first_name}.")
