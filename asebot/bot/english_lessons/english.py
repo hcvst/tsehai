@@ -78,9 +78,13 @@ class English:
         update.message.reply_text(
             "Select [Skip] to write the test, or [Proceed] to begin your lessons",
             reply_markup=ReplyKeyboardMarkup([
-                ["Skip","Proceed"],
+                ["⏭ Skip","▶ Proceed"],
             ], one_time_keyboard=False, resize_keyboard=True)
         )
+        return STATE.LESSON
+
+    def proceed(self, update, context):
+        return lessons.open_lessons(update, context)
 
     def assign_unit(self, update, context):
         print("Assign unit")
@@ -90,7 +94,8 @@ class English:
         if unit >= 1 and unit <= 10 and not None:
             """ The grade and unit filters for getting the correct lessons to be done here """
             context.user_data[USER.UNIT] = unit
-            return lessons.open_lessons(update, context)
+            return self.unit_response(update, context, unit)
+            # return lessons.open_lessons(update, context)
         else:
             return self.invalid_selection(update, context, "unit")
 

@@ -397,7 +397,7 @@ def display_quiz_marks(update, context):
     update.message.reply_text(
         f"What would you like to do?",
         reply_markup=ReplyKeyboardMarkup([
-            ['↩️ Return to the library']
+            ['↩️ Return to main menu']
         ], one_time_keyboard=False, resize_keyboard=True)
     )
     return STATE.BOOK_REDIRECT
@@ -491,7 +491,8 @@ root_conversation = ConversationHandler(
         STATE.LESSON: [
             MessageHandler(Filters.regex("🏠"), mainmenu.main_menu),
             MessageHandler(Filters.regex("⏭"), inprogress_lesson.skip_unit),
-            MessageHandler(Filters.regex("➡️"), inprogress_lesson.next)
+            MessageHandler(Filters.regex("➡️"), inprogress_lesson.next),
+            MessageHandler(Filters.regex("▶"), english_lessons.proceed)
         ],
 
         STATE.UNIT_TEST: [
