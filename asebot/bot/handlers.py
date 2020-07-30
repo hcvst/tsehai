@@ -15,9 +15,18 @@ from asebot.constants import STATE, USER
 from asebot.bot.alocate_points import alocate_points
 from asebot.bot.leaderboard import leaderboard
 from asebot.bot.english_lessons.english import English
+from asebot.bot.english_lessons.lessons import Lessons
+from asebot.bot.home.main_menu import MainMenu
+from asebot.bot.english_lessons.lesson_quizz import LessonQuizz
+from asebot.bot.english_lessons.end_of_unit import UnitTest
+
 
 logger = logging.getLogger(__name__)
 english_lessons = English()
+inprogress_lesson = Lessons()
+lessonQuizz = LessonQuizz()
+mainmenu = MainMenu()
+end_of_unit_test = UnitTest()
 
 
 def error(update, context):
@@ -42,19 +51,19 @@ def start(update, context):
     else:
         update.message.reply_text(f"Hello! 👋")
         update.message.reply_text(f"Nice to see you again, {user.first_name}.")
-    return main_menu(update, context)
+    return mainmenu.main_menu(update, context)
 
 
-def main_menu(update, context):
+# def main_menu(update, context):
 
-    update.message.reply_text(
-        f"What would you like to do?",
-        reply_markup=ReplyKeyboardMarkup([
-            ["🏅 See my medals"],
-            [ "🏛️ I want to read", "📔 I want English lessons"]
-        ], one_time_keyboard=False, resize_keyboard=True)
-    )
-    return STATE.STARTED
+#     update.message.reply_text(
+#         f"What would you like to do?",
+#         reply_markup=ReplyKeyboardMarkup([
+#             ["🏅 See my medals"],
+#             [ "🏛️ I want to read", "📔 I want English lessons"]
+#         ], one_time_keyboard=False, resize_keyboard=True)
+#     )
+#     return STATE.STARTED
 
 
 def library(update, context):
@@ -260,7 +269,7 @@ def start_quizz(update, context):
         )
         return view_quizz_question(update, context)
     else:
-        return main_menu(update, context)
+        return mainmenu.main_menu(update, context)
 
 
 def view_quizz_question(update, context):
@@ -336,7 +345,7 @@ def quizz_finished(update, context):
             f"You made a few mistakes, {user.first_name}. "
             "That's ok. You are still learning.")
     asebot.pointsbrain.update_reading_level(update, context)
-    return main_menu(update, context)
+    return mainmenu.main_menu(update, context)
 
 
 def medals(update, context):
@@ -400,7 +409,7 @@ def book_redirect(update, context):
         if books[book_elements]['book_idx'] == book_redirect_id and books[book_elements]['level'] == context.user_data[USER.READING_LEVEL]:
             context.user_data["book_idx"] = book_redirect_id
             return view_book(update, context)
-    return return_to_main_menu(update, context)
+    return mainmenu.return_to_main_menu(update, context)
 
 def display_leaderboard(update, context):
     chatId = update.message.chat
@@ -418,11 +427,11 @@ def display_leaderboard(update, context):
             update.message.reply_text(
                 f"{user['username']}  --->  {user['totalPoints']}"
             )
-    return main_menu(update, context)
+    return mainmenu.main_menu(update, context)
 
-def return_to_main_menu(update, context):
-    update.message.reply_text("Sorry, I don't know how to help you with that.")
-    return main_menu(update, context)
+# def return_to_main_menu(update, context):
+#     update.message.reply_text("Sorry, I don't know how to help you with that.")
+#     return main_menu(update, context)
 
 
 def prompt_to_start_over(update, context):
@@ -456,7 +465,7 @@ root_conversation = ConversationHandler(
             MessageHandler(Filters.regex(r'➡️'), next_page)
         ],
         STATE.QUIZZ: [
-            MessageHandler(Filters.all, check_quizz_answer)
+            MessageHandler(Filters.all, check_quizz_answer),
         ],
         STATE.READINGLEVEL: [
             # MessageHandler(Filters.regex(r'1️⃣'), reading_level)
@@ -471,11 +480,29 @@ root_conversation = ConversationHandler(
         ],
         
         STATE.BOOK_REDIRECT: [
-            MessageHandler(Filters.regex(r'↩️'), main_menu),
+            MessageHandler(Filters.regex(r'↩️'), mainmenu.main_menu),
             MessageHandler(Filters.regex(r'/'), book_redirect)
-        ]
+        ],
+
+        STATE.UNIT: [
+            MessageHandler(Filters.all, english_lessons.assign_unit)
+        ],
+
+        STATE.LESSON: [
+            MessageHandler(Filters.regex("🏠"), mainmenu.main_menu),
+            MessageHandler(Filters.regex("⏭"), inprogress_lesson.skip_unit),
+            MessageHandler(Filters.regex("➡️"), inprogress_lesson.next)
+        ],
+
+        STATE.UNIT_TEST: [
+            MessageHandler(Filters.all, end_of_unit_test.check_test_answer)
+        ],
+
+        STATE.LESSON_QUIZZ: [
+            MessageHandler(Filters.all, lessonQuizz.check_quizz_answer),
+        ],
     },
-    fallbacks=[MessageHandler(Filters.all, return_to_main_menu)]
+    fallbacks=[MessageHandler(Filters.all, mainmenu.return_to_main_menu)]
 
 
 )
