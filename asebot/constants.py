@@ -3,6 +3,7 @@ class USER:
     READING_LEVEL = "READING_LEVEL"
     GRADE = "GRADE"
     UNIT = "UNIT"
+    LESSON = "LESSON"
     QUIZZ_TAKEN = "QUIZZ_TAKEN"
 
 class STATE:

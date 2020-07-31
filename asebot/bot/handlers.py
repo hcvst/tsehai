@@ -192,7 +192,7 @@ def read_book(update, context):
     context.user_data["page_idx"] = 0
     return view_page(update, context)
 
-
+# lana
 def view_page(update, context):
     pages = context.user_data["book"]["pages"]
     page_idx = context.user_data["page_idx"]

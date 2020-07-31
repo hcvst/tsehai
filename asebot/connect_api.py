@@ -2,16 +2,17 @@ from gql import Client, gql
 from gql.transport.requests import RequestsHTTPTransport
 import asebot.config
 
-sample_transport=RequestsHTTPTransport(
-        url=asebot.config.GRAPHQL_ENDPOINT,
-        verify=False,
-        retries=3,
+sample_transport = RequestsHTTPTransport(
+    url=asebot.config.GRAPHQL_ENDPOINT,
+    verify=False,
+    retries=3,
 )
 
 client = Client(
     transport=sample_transport,
     fetch_schema_from_transport=True,
 )
+
 
 class ConnectAPI:
 
@@ -27,7 +28,7 @@ class ConnectAPI:
                   totalPoints
                 }
               }
-            } """%(chatID, userName, points)
+            } """ % (chatID, userName, points)
         )
         client.execute(query)
 
@@ -44,7 +45,7 @@ class ConnectAPI:
                   totalPoints
                 }
               }
-            } """%(id, points)
+            } """ % (id, points)
         )
         client.execute(query)
 
@@ -57,18 +58,37 @@ class ConnectAPI:
                 username
                 totalPoints
               }
-            } """%chatId
+            } """ % chatId
         )
         return client.execute(query)
 
     def get_top10(self):
-      query = gql(
-        """ query {
+        query = gql(
+            """ query {
           points(limit:10 ,sort: "totalPoints:desc") {
             chatId
             username
             totalPoints
           }
         } """
-      )
-      return client.execute(query)
+        )
+        return client.execute(query)
+
+    def load_lesson(self, grade, unit, lesson):
+        query = gql(
+            """ {
+                  lessonContents(where: {grade: "%s" unit: "%s" lesson: "%s"}){
+                    page{images{url} text}
+                    lesson_quizz{instructions questions {
+                      question
+                      image {url}
+                      answer
+                      distractors {
+                        wrong_answer
+                        }
+                      }
+                    }
+                  }
+                } """ % (grade, unit, lesson)
+        )
+        return client.execute(query)["lessonContents"]
