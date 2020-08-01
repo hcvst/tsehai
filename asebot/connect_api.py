@@ -78,6 +78,7 @@ class ConnectAPI:
         query = gql(
             """ {
                   lessonContents(where: {grade: "%s" unit: "%s" lesson: "%s"}){
+                    id
                     page{images{url} text}
                     lesson_quizz{instructions questions {
                       question
@@ -92,3 +93,23 @@ class ConnectAPI:
                 } """ % (grade, unit, lesson)
         )
         return client.execute(query)["lessonContents"]
+      
+    def load_unit_quiz(self, grade, unit):
+      query = gql(
+        """
+        {
+          unitQuizs(where:{Grade:"%s" Unit:"%s"}){
+            id
+            Instructions
+            Questions{
+              question
+              image {url}
+              answer
+              distractors{
+                wrong_answer
+                }
+              }
+            }
+          } """ % (grade, unit)
+        )
+      return client.execute(query)["unitQuizs"]

@@ -91,7 +91,7 @@ def update_reading_level(update, context):
         level_mark = average/numberOfquizz
         if level_mark >= 80 and context.user_data[USER.READING_LEVEL] < 4:
             context.user_data[USER.READING_LEVEL] += 1
-            level_up(update, context)
+            return level_up(update, context)
         
 
 def level_up(update, context):

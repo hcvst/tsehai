@@ -6,11 +6,13 @@ from asebot.bot.english_lessons.lesson_quizz import LessonQuizz
 from asebot.bot.components.switch import Switch
 import asebot.config
 from asebot.connect_api import ConnectAPI
+#from asebot.bot.english_lessons.english import English
 
 api = ConnectAPI()
 
 end_of_unit_test = UnitTest()
 lessonQuizz = LessonQuizz()
+#english_lessons = English()
 
 
 class Lessons:
@@ -20,7 +22,6 @@ class Lessons:
 
     def open_lessons(self, update, context):
         print("open lessons")
-        context.user_data[USER.LESSON] = 1
         switcher = Switch()
         context.user_data["lesson_page_idx"] = 0
 
@@ -34,13 +35,13 @@ class Lessons:
                 "There are no lessons available at the moment. "
                 "Please try again later."
                 )
+            return self.skip_unit(update, context)
         print(context.user_data["lesson"])
         return self.lesson_page(update, context)
 
     """ equivalent to view page """
 
     def lesson_page(self, update, context):
-        print("Got here")
         pages = context.user_data["lesson"][0]["page"]
         page_idx = context.user_data["lesson_page_idx"]
         page = pages[page_idx]

@@ -98,13 +98,13 @@ class English:
             # return lessons.open_lessons(update, context)
         else:
             return self.invalid_selection(update, context, "unit")
-
     def assign_grade(self, update, context):
         switcher = Switch()
         grade = switcher.grade(update.message.text)
         
         if grade >= 1 and grade <= 8 and not None:
             context.user_data[USER.GRADE] = grade
+            context.user_data[USER.LESSON] = 1
             print(context.user_data)
             return self.unit(update, context)
         else:

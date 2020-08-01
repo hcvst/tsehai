@@ -48,6 +48,8 @@ def start(update, context):
         )
         context.user_data[USER.REPEAT_VISITOR] = True
         context.user_data[USER.QUIZZ_TAKEN] = None
+        context.user_data[USER.UNIT_QUIZ] = None
+        context.user_data[USER.LESSON_QUIZ] = None
     else:
         update.message.reply_text(f"Hello! 👋")
         update.message.reply_text(f"Nice to see you again, {user.first_name}.")
@@ -296,7 +298,7 @@ def view_quizz_question(update, context):
 
 
 def check_quizz_answer(update, context):
-    provided_answer = update.message.text
+    provided_answer = update.message.text.strip
     quizz_idx = context.user_data["quizz_idx"]
     qna = context.user_data["book"]["quizz"]["questions"][quizz_idx]
     answer = qna["answer"]

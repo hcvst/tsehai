@@ -5,6 +5,8 @@ class USER:
     UNIT = "UNIT"
     LESSON = "LESSON"
     QUIZZ_TAKEN = "QUIZZ_TAKEN"
+    LESSON_QUIZ = "LESSON_QUIZ"
+    UNIT_QUIZ = "UNIT_QUIZ"
 
 class STATE:
     STARTED = "STARTED"
