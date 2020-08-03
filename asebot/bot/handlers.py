@@ -387,7 +387,12 @@ root_conversation = ConversationHandler(
         ],
 
         STATE.UNIT: [
-            MessageHandler(Filters.all, english_lessons.assign_unit)
+            MessageHandler(Filters.all, english_lessons.unit_choice)
+        ],
+        
+        STATE.UNIT_CHOICE: [
+            MessageHandler(Filters.regex(r'✅'), english_lessons.unit_response),
+            MessageHandler(Filters.regex(r'❌'), english_lessons.unit)
         ],
 
         STATE.LESSON: [
