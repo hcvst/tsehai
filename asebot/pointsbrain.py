@@ -91,16 +91,6 @@ def update_reading_level(update, context):
         level_mark = average/numberOfquizz
         if level_mark >= 80 and context.user_data[USER.READING_LEVEL] < 4:
             context.user_data[USER.READING_LEVEL] += 1
-            return level_up(update, context)
-        
-
-def level_up(update, context):
-    newlevel = context.user_data[USER.READING_LEVEL]
-    if newlevel == 2:
-        asebot.bot.handlers.assign_reading_level_2(update, context)
-    elif newlevel == 3:
-        asebot.bot.handlers.assign_reading_level_3(update, context)
-    else:
-        asebot.bot.handlers.assign_reading_level_4(update, context)
+            return asebot.bot.handlers.reading.yes_proceed(update, context)
 
     

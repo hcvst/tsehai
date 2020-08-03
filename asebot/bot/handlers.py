@@ -16,6 +16,7 @@ from asebot.bot.alocate_points import alocate_points
 from asebot.bot.leaderboard import leaderboard
 from asebot.bot.english_lessons.english import English
 from asebot.bot.english_lessons.lessons import Lessons
+from asebot.bot.reading.reading import Reading
 from asebot.bot.home.main_menu import MainMenu
 from asebot.bot.english_lessons.lesson_quizz import LessonQuizz
 from asebot.bot.english_lessons.end_of_unit import UnitTest
@@ -27,6 +28,7 @@ inprogress_lesson = Lessons()
 lessonQuizz = LessonQuizz()
 mainmenu = MainMenu()
 end_of_unit_test = UnitTest()
+reading = Reading()
 
 
 def error(update, context):
@@ -56,114 +58,6 @@ def start(update, context):
     return mainmenu.main_menu(update, context)
 
 
-# def main_menu(update, context):
-
-#     update.message.reply_text(
-#         f"What would you like to do?",
-#         reply_markup=ReplyKeyboardMarkup([
-#             ["🏅 See my medals"],
-#             [ "🏛️ I want to read", "📔 I want English lessons"]
-#         ], one_time_keyboard=False, resize_keyboard=True)
-#     )
-#     return STATE.STARTED
-
-
-def library(update, context):
-    update.message.reply_text(f"🏛️ The Library")
-
-    context.user_data["books"] = asebot.api.load_books()
-    context.user_data["book_idx"] = 0
-
-    if len(context.user_data["books"]) == 0:
-        update.message.reply_text(
-            "There are no books available at the moment. "
-            "Please try again later.",
-            reply_markup=ReplyKeyboardMarkup([
-                ["🏅 See my medals"],
-                [ "🏛️ I want to read", "📔 I want English lessons"]
-                ], one_time_keyboard=False, resize_keyboard=True)
-            )
-        return STATE.STARTED
-    else:
-        update.message.reply_text(
-            "Let's find a book for you."
-        )
-        return view_book(update, context)
-
-def reading_level(update, context):
-    context.user_data["levelSelectionPictures"] = asebot.api.load_level_Selection()
-
-    if not context.user_data.get(USER.READING_LEVEL):
-        update.message.reply_text("Wow!")
-        update.message.reply_text("I love reading too!")
-        update.message.reply_text("Look at the pictures and choose your reading level")
-        
-        update.message.reply_photo(
-            photo=asebot.config.API_SERVER+context.user_data["levelSelectionPictures"][0]['Image'][0]['url'],
-            # caption=books[book_idx]["title"],
-            parse_mode='Markdown',
-            reply_markup=ReplyKeyboardMarkup([
-                 ["Level 1️⃣","Level 2️⃣"],
-                ["Level 3️⃣", "Level 4️⃣"]
-            ], one_time_keyboard=False, resize_keyboard=True)
-        )
-        return STATE.READINGLEVEL  
-    else:
-        update.message.reply_text(f"🏛️ The Library")
-        context.user_data["book_idx"] = 0
-        # context.user_data[USER.READING_LEVEL] = false
-    
-        if len(context.user_data["books"]) == 0:
-            update.message.reply_text(
-                "There are no books available at the moment. "
-                "Please try again later.",
-                reply_markup=ReplyKeyboardMarkup([
-                    ["🏅 See my medals"],
-                    [ "🏛️ I want to read", "📔 I want English lessons"]
-                    ], one_time_keyboard=False, resize_keyboard=True)
-                )
-            return STATE.STARTED
-        else:
-            update.message.reply_text(
-                "Let's find a book for you."
-            )
-            return view_book(update, context)
-        # return view_book(update, context)
-
-# Level assignment is not dynamic ==>
-
-def assign_reading_level_1(update, context):
-    context.user_data[USER.READING_LEVEL] = 1
-    context.user_data[USER.QUIZZ_TAKEN] = None
-    context.user_data["books"] = asebot.api.load_books_on_level(context.user_data[USER.READING_LEVEL])
-    update.message.reply_text(f"Level 1 assigned")
-    return reading_level(update, context)
-
-
-def assign_reading_level_2(update, context):
-    context.user_data[USER.READING_LEVEL] = 2
-    context.user_data[USER.QUIZZ_TAKEN] = None
-    context.user_data["books"] = asebot.api.load_books_on_level(context.user_data[USER.READING_LEVEL])
-    update.message.reply_text(f"Level 2 assigned")
-    return reading_level(update, context)
-
-def assign_reading_level_3(update, context):
-    context.user_data[USER.READING_LEVEL] = 3
-    context.user_data[USER.QUIZZ_TAKEN] = None
-    context.user_data["books"] = asebot.api.load_books_on_level(context.user_data[USER.READING_LEVEL])
-    update.message.reply_text(f"Level 3 assigned")
-    return reading_level(update, context)
-
-def assign_reading_level_4(update, context):
-    context.user_data[USER.READING_LEVEL] = 4
-    context.user_data[USER.QUIZZ_TAKEN] = None
-    context.user_data["books"] = asebot.api.load_books_on_level(context.user_data[USER.READING_LEVEL])
-    update.message.reply_text(f"Level 4 assigned")
-    return reading_level(update, context)
-
-# ============>
-
-
 def view_book(update, context):
     books = context.user_data["books"]
     book_idx = context.user_data["book_idx"]
@@ -173,7 +67,7 @@ def view_book(update, context):
         parse_mode='Markdown',
         reply_markup=ReplyKeyboardMarkup([
             ['📖 Read this book'],
-            ['➡️ Look for another book']
+            ['➡️ Look for another book'],
             ['🏠 Return to Main Menu']
         ], one_time_keyboard=False, resize_keyboard=True)
     )
@@ -450,7 +344,7 @@ root_conversation = ConversationHandler(
     entry_points=[CommandHandler('start', start)],
     states={
         STATE.STARTED: [
-            MessageHandler(Filters.regex(r'🏛️'), reading_level),
+            MessageHandler(Filters.regex(r'🏛️'), reading.reading_level),
             MessageHandler(Filters.regex(r'🏅'), medals),
             MessageHandler(Filters.regex(r'📔'), english_lessons.english_lessons),
             MessageHandler(Filters.regex(r'📋'), display_leaderboard),
@@ -463,7 +357,7 @@ root_conversation = ConversationHandler(
             MessageHandler(Filters.regex("🏠"), mainmenu.main_menu)
         ],
         STATE.READING: [
-            MessageHandler(Filters.regex(r'🏛️'), reading_level),
+            MessageHandler(Filters.regex(r'🏛️'), reading.reading_level),
             MessageHandler(Filters.regex(r'👂'), text_to_speech),
             MessageHandler(Filters.regex(r'➡️'), next_page)
         ],
@@ -471,11 +365,16 @@ root_conversation = ConversationHandler(
             MessageHandler(Filters.all, check_quizz_answer),
         ],
         STATE.READINGLEVEL: [
-            # MessageHandler(Filters.regex(r'1️⃣'), reading_level)
-            MessageHandler(Filters.regex(r'1️⃣'), assign_reading_level_1),
-            MessageHandler(Filters.regex(r'2️⃣'), assign_reading_level_2),
-            MessageHandler(Filters.regex(r'3️⃣'), assign_reading_level_3),
-            MessageHandler(Filters.regex(r'4️⃣'), assign_reading_level_4)
+            MessageHandler(Filters.all, reading.assign_reading_level),
+        ],
+        
+        STATE.SECONDCONFIRMREADINGLEVEL: [
+            MessageHandler(Filters.regex(r'🟢'), reading.yes_proceed), 
+            MessageHandler(Filters.regex(r'🔴'), reading.no)  
+        ],
+        
+        STATE.FIRSTCONFIRMREADINGLEVEL: [
+            MessageHandler(Filters.all, reading.confirm),
         ],
         
         STATE.GRADE: [
@@ -491,7 +390,12 @@ root_conversation = ConversationHandler(
         ],
 
         STATE.UNIT: [
-            MessageHandler(Filters.all, english_lessons.assign_unit)
+            MessageHandler(Filters.all, english_lessons.unit_choice)
+        ],
+        
+        STATE.UNIT_CHOICE: [
+            MessageHandler(Filters.regex(r'✅'), english_lessons.unit_response),
+            MessageHandler(Filters.regex(r'❌'), english_lessons.unit)
         ],
 
         STATE.LESSON: [

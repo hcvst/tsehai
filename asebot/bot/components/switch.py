@@ -27,6 +27,22 @@ class Switch:
             "🔟":10
         }
         return switcher.get(l, 11)
+
+    def level(self, l):
+       switcher={
+           "Level 1️⃣":1,
+           "Level 2️⃣":2,
+           "Level 3️⃣":3,
+           "Level 4️⃣":4
+       }
+       return switcher.get(l, 5)
+   
+    def confirm(self, l):
+       switcher={
+           "🔴 No":0,
+           "🟢 Yes":1
+       }
+       return switcher.get(l, 5)
     
     def num_to_words(self, l):
         switcher={
