@@ -79,13 +79,16 @@ class UnitTest:
         update.message.reply_text("finished")
         medal = level_up.points_medals_unit_quiz(context)
         medalattained = medal['medal']
-        
+        percentattained = medal['percentage']
         context.user_data.setdefault(
             "medals", dict(gold=0, silver=0, bronze=0,nomedal=0)
             )[f"{medalattained}"] += 1
         update.message.reply_text(
             f"Congratulations, you got {str(medalattained)} a medal 🎉."
             )
+        if percentattained >= 70:
+            context.user_data[USER.UNIT_CHOSEN].append(context.user_data[USER.UNIT] + 1)
+            update.message.reply_text(f"You can now access a new unit {context.user_data[USER.UNIT] + 1}")
         return level_up.next_unit(update, context)
 
     def view_test_results(self, update, context):
