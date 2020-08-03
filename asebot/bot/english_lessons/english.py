@@ -9,6 +9,7 @@ mainmenu = MainMenu()
 lessons = Lessons()
 
 class English:
+    grade = None
     def english_lessons(self, update,context):
         if not context.user_data.get(USER.GRADE):
             update.message.reply_text(
@@ -25,6 +26,36 @@ class English:
         #     pass
         else:
             return self.unit(update, context)
+
+    def confirm_grade(self, update, context):
+        global grade
+        grade = update.message.text
+        switcher = Switch()
+        selected_grade = switcher.grade(grade)
+        grade = selected_grade
+        
+        if selected_grade >= 1 and selected_grade <= 8 and not None:
+            update.message.reply_text(
+                "Are you sure you want to select this grade?",
+                reply_markup=ReplyKeyboardMarkup([
+                    ["🟢 Yes", "🔴 No"]
+                ], one_time_keyboard=False, resize_keyboard=True)
+            )
+            return STATE.COMFIRM_GRADE
+        else:
+            return self.invalid_selection(update, context, "grade")
+
+    def reconfirm_grade(self, update, context):
+        global grade
+        update.message.reply_text(f"You have selected grade {grade}")
+        update.message.reply_text("Select [Yes] to confirm or [No] to go back")
+        update.message.reply_text(
+            "Are you sure you want to select this grade?",
+            reply_markup=ReplyKeyboardMarkup([
+                ["🟢 Yes", "🔴 No"]
+            ], one_time_keyboard=False, resize_keyboard=True)
+        )
+        return STATE.RE_COMFIRM_GRADE
 
     def invalid_selection(self, update, context, *args):
         selection = args[0]
@@ -44,10 +75,6 @@ class English:
             )
             return STATE.GRADE
         elif selection == "unit":
-            context.user_data[USER.FINAL_UNIT] = None
-            context.user_data[USER.TEMP_UNIT] = None
-            context.user_data[USER.UNIT_CHOSEN] = []
-            #add to taf
             update.message.reply_text(
                 "You entered an invalid unit"
             )
@@ -64,10 +91,6 @@ class English:
             return STATE.UNIT
 
     def unit(self, update, context):
-        context.user_data[USER.FINAL_UNIT] = None
-        context.user_data[USER.TEMP_UNIT] = None
-        context.user_data[USER.UNIT_CHOSEN] = []
-        #add to taf
         update.message.reply_text(
             "Select the unit you are doing at school",
             reply_markup=ReplyKeyboardMarkup([
@@ -124,7 +147,7 @@ class English:
         update.message.reply_text(
             "Select [Yes] to confirm or [No] to go back",
             reply_markup=ReplyKeyboardMarkup([
-                ["✅YES","❌NO"],
+                ["🟢 Yes","🔴 No"],
             ], one_time_keyboard=False, resize_keyboard=True)
         )
         
@@ -140,13 +163,14 @@ class English:
         return STATE.UNIT_CHOICE
         
     def assign_grade(self, update, context):
-        switcher = Switch()
-        grade = switcher.grade(update.message.text)
-        
+        global grade
+
         if grade >= 1 and grade <= 8 and not None:
+            context.user_data[USER.FINAL_UNIT] = None
+            context.user_data[USER.TEMP_UNIT] = None
+            context.user_data[USER.UNIT_CHOSEN] = []
             context.user_data[USER.GRADE] = grade
             context.user_data[USER.LESSON] = 1
-            print(context.user_data)
             return self.unit(update, context)
         else:
             return self.invalid_selection(update, context, "grade")
