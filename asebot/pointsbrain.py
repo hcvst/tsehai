@@ -64,12 +64,16 @@ def points_medals_brain(context):
                 "medal": "nomedal",
                 "percentage": percentage
                 }
+        print(medalcalculation)
+        
         return medalcalculation    
     else:
         medalcalculation = {
             "medal": "nomedal",
             "percentage": percentage
             }
+        print(medalcalculation)
+        
         return medalcalculation
     
 def update_percentage(validate_percentage_element,percentage):

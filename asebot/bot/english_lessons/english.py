@@ -75,10 +75,6 @@ class English:
             )
             return STATE.GRADE
         elif selection == "unit":
-            context.user_data[USER.FINAL_UNIT] = None
-            context.user_data[USER.TEMP_UNIT] = None
-            context.user_data[USER.UNIT_CHOSEN] = []
-            #add to taf
             update.message.reply_text(
                 "You entered an invalid unit"
             )
@@ -95,10 +91,6 @@ class English:
             return STATE.UNIT
 
     def unit(self, update, context):
-        context.user_data[USER.FINAL_UNIT] = None
-        context.user_data[USER.TEMP_UNIT] = None
-        context.user_data[USER.UNIT_CHOSEN] = []
-        #add to taf
         update.message.reply_text(
             "Select the unit you are doing at school",
             reply_markup=ReplyKeyboardMarkup([
@@ -174,6 +166,9 @@ class English:
         global grade
 
         if grade >= 1 and grade <= 8 and not None:
+            context.user_data[USER.FINAL_UNIT] = None
+            context.user_data[USER.TEMP_UNIT] = None
+            context.user_data[USER.UNIT_CHOSEN] = []
             context.user_data[USER.GRADE] = grade
             context.user_data[USER.LESSON] = 1
             return self.unit(update, context)

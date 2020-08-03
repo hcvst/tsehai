@@ -128,7 +128,7 @@ class LevelUp:
                 }
         else:
             medalcalculation = {
-                "points": "nomedal",
+                "points": 0,
                 "percentage": percentage
                 }
         return medalcalculation

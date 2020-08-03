@@ -193,10 +193,11 @@ def view_quizz_question(update, context):
 
 
 def check_quizz_answer(update, context):
-    provided_answer = update.message.text.strip
+    provided_answer = update.message.text.strip()
     quizz_idx = context.user_data["quizz_idx"]
     qna = context.user_data["book"]["quizz"]["questions"][quizz_idx]
     answer = qna["answer"]
+
     if provided_answer == answer:
         update.message.reply_text("✔️ That is correct.")
     else:
@@ -224,6 +225,7 @@ def quizz_finished(update, context):
     context.user_data.setdefault(
             "medals", dict(gold=0, silver=0, bronze=0,nomedal=0)
         )[f"{medalattained}"] += 1
+    
     if quizz_mistakes == 0:
         update.message.reply_text(
             f"🎉 Very good, {user.first_name}. "
@@ -379,9 +381,6 @@ root_conversation = ConversationHandler(
         
         STATE.GRADE: [
             MessageHandler(Filters.all, english_lessons.confirm_grade)
-            # MessageHandler(Filters.regex("🟢"), english_lessons.reconfirm_grade),
-            # MessageHandler(Filters.regex("🔴"), english_lessons.english_lessons),
-            # MessageHandler(Filters.all, english_lessons.assign_grade),
         ],
         
         STATE.BOOK_REDIRECT: [
@@ -394,8 +393,8 @@ root_conversation = ConversationHandler(
         ],
         
         STATE.UNIT_CHOICE: [
-            MessageHandler(Filters.regex(r'✅'), english_lessons.unit_response),
-            MessageHandler(Filters.regex(r'❌'), english_lessons.unit)
+            MessageHandler(Filters.regex(r'🟢'), english_lessons.unit_response),
+            MessageHandler(Filters.regex(r'🔴'), english_lessons.unit)
         ],
 
         STATE.LESSON: [
