@@ -1,33 +1,33 @@
-from asebot.bot.english_lessons.english import English
-from asebot.constants import USER
+from telegram import (InlineKeyboardButton, InlineKeyboardMarkup,
+                      ReplyKeyboardMarkup)
+from asebot.constants import STATE, USER
 from asebot.bot.home.main_menu import MainMenu
-from asebot.bot.components.switch import Switch
 
-english_lessons = English()
 mainmenu = MainMenu()
-switcher = Switch()
-english_lessons = English()
 
 class LevelUp:
     def next_unit(self, update, context):
         print("level up")
         update.message.reply_text("Next unit")
         print("I am here")
-        #points allocation and moving on
+        #points allocation and moving on to next unit
         return mainmenu.main_menu(update, context)
     
     def next_lesson(self, update, context):
         print("Next lesson")
         context.user_data[USER.LESSON] += 1
-        print(context.user_data[USER.LESSON])
-        #add markup to choose main menu or go to the lesson
-        return mainmenu.main_menu(update, context)
-        #return english_lessons.proceed(self, update, context)
+        update.message.reply_text(
+            "Select [Main Menu] to go to Main Menu, or [Proceed] to move to the next lesson",
+            reply_markup=ReplyKeyboardMarkup([
+                [ "🏠 Main Menu", "▶ Proceed"],
+            ], one_time_keyboard=False, resize_keyboard=True)
+        )
+        return STATE.CHOOSE_LESSON
     
     def validate_lesson_quizz_taken(self, context):
-        grade = switcher.num_to_words(context.user_data[USER.GRADE])
-        unit = switcher.num_to_words(context.user_data[USER.UNIT])
-        lesson = switcher.num_to_words(context.user_data[USER.LESSON])
+        grade = context.user_data[USER.GRADE]
+        unit = context.user_data[USER.UNIT]
+        lesson = context.user_data[USER.LESSON]
         element_id = int(context.user_data["lesson"][0]["id"])
         
         if context.user_data[USER.LESSON_QUIZ] is not None:
@@ -54,8 +54,8 @@ class LevelUp:
         print(context.user_data[USER.LESSON_QUIZ])
     
     def validate_unit_quizz_taken(self, context):
-        grade = switcher.num_to_words(context.user_data[USER.GRADE])
-        unit = switcher.num_to_words(context.user_data[USER.UNIT])
+        grade = context.user_data[USER.GRADE]
+        unit = context.user_data[USER.UNIT]
         element_id = int(context.user_data["unit_quiz"][0]["id"])
         
         if context.user_data[USER.UNIT_QUIZ] is not None:

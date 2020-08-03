@@ -3,7 +3,6 @@ from telegram import (InlineKeyboardButton, InlineKeyboardMarkup,
 from asebot.constants import STATE, USER
 from asebot.bot.english_lessons.end_of_unit import UnitTest
 from asebot.bot.english_lessons.lesson_quizz import LessonQuizz
-from asebot.bot.components.switch import Switch
 import asebot.config
 from asebot.connect_api import ConnectAPI
 #from asebot.bot.english_lessons.english import English
@@ -22,12 +21,11 @@ class Lessons:
 
     def open_lessons(self, update, context):
         print("open lessons")
-        switcher = Switch()
         context.user_data["lesson_page_idx"] = 0
 
-        grade = switcher.num_to_words(context.user_data[USER.GRADE])
-        unit = switcher.num_to_words(context.user_data[USER.UNIT])
-        lesson = switcher.num_to_words(context.user_data[USER.LESSON])
+        grade = context.user_data[USER.GRADE]
+        unit = context.user_data[USER.UNIT]
+        lesson = context.user_data[USER.LESSON]
         
         context.user_data["lesson"] = api.load_lesson(grade, unit, lesson)
         if len(context.user_data["lesson"]) == 0:
@@ -37,10 +35,22 @@ class Lessons:
                 )
             return self.skip_unit(update, context)
         print(context.user_data["lesson"])
-        return self.lesson_page(update, context)
+        return self.audio_introduction(update,context)
 
     """ equivalent to view page """
-
+    def audio_introduction(self,update,context):
+        if context.user_data["lesson"][0]["recordings"] is not None:
+            audio_href = asebot.config.API_SERVER+context.user_data["lesson"][0]["recordings"]["url"]
+            update.message.reply_voice(
+                audio_href,
+                reply_markup=ReplyKeyboardMarkup([
+                    ["🇫🇲 NEXT"],
+                    ], one_time_keyboard=False, resize_keyboard=True)
+                )
+            return STATE.AUDIO_LESSON
+        else:
+            return self.lesson_page(update,context)
+    
     def lesson_page(self, update, context):
         pages = context.user_data["lesson"][0]["page"]
         page_idx = context.user_data["lesson_page_idx"]

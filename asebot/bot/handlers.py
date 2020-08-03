@@ -174,6 +174,7 @@ def view_book(update, context):
         reply_markup=ReplyKeyboardMarkup([
             ['📖 Read this book'],
             ['➡️ Look for another book']
+            ['🏠 Return to Main Menu']
         ], one_time_keyboard=False, resize_keyboard=True)
     )
     return STATE.BROWSE_BOOKS
@@ -326,9 +327,6 @@ def quizz_finished(update, context):
     medal = points_medals_brain(context)
     medalattained = medal['medal']
 
-    alocate_points(update, medal['percentage'])
-    #test.createPoints(chatId.id , user.first_name, medal['percentage'])
-
     context.user_data.setdefault(
             "medals", dict(gold=0, silver=0, bronze=0,nomedal=0)
         )[f"{medalattained}"] += 1
@@ -361,6 +359,7 @@ def medals(update, context):
         f"🥉 Bronze - {medals['bronze']}",
         
         reply_markup=ReplyKeyboardMarkup([
+            ["🏠 Return To Main Menu"],
             ["📋 See Leaderboard", "🎓 See My Quiz Marks"]
         ], one_time_keyboard=False, resize_keyboard=True)
     )
@@ -456,10 +455,12 @@ root_conversation = ConversationHandler(
             MessageHandler(Filters.regex(r'📔'), english_lessons.english_lessons),
             MessageHandler(Filters.regex(r'📋'), display_leaderboard),
             MessageHandler(Filters.regex(r'🎓'), display_quiz_marks),
+            MessageHandler(Filters.regex("🏠"), mainmenu.main_menu)
         ],
         STATE.BROWSE_BOOKS: [
             MessageHandler(Filters.regex(r'📖'), read_book),
-            MessageHandler(Filters.regex(r'➡️'), next_book)
+            MessageHandler(Filters.regex(r'➡️'), next_book),
+            MessageHandler(Filters.regex("🏠"), mainmenu.main_menu)
         ],
         STATE.READING: [
             MessageHandler(Filters.regex(r'🏛️'), reading_level),
@@ -504,6 +505,15 @@ root_conversation = ConversationHandler(
         STATE.LESSON_QUIZZ: [
             MessageHandler(Filters.all, lessonQuizz.check_quizz_answer),
         ],
+        
+        STATE.CHOOSE_LESSON: [
+            MessageHandler(Filters.regex("🏠"), mainmenu.main_menu),
+            MessageHandler(Filters.regex("▶"), english_lessons.proceed)
+        ],
+        
+        STATE.AUDIO_LESSON: [
+            MessageHandler(Filters.regex("🇫🇲"), inprogress_lesson.lesson_page)
+        ]
     },
     fallbacks=[MessageHandler(Filters.all, mainmenu.return_to_main_menu)]
 

@@ -79,6 +79,7 @@ class ConnectAPI:
             """ {
                   lessonContents(where: {grade: "%s" unit: "%s" lesson: "%s"}){
                     id
+                    recordings{url}
                     page{images{url} text}
                     lesson_quizz{instructions questions {
                       question
