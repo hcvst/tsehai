@@ -2,7 +2,6 @@ import random
 import asebot.config
 from telegram import (InlineKeyboardButton, InlineKeyboardMarkup,
                       ReplyKeyboardMarkup)
-from asebot.bot.components.switch import Switch
 from asebot.constants import STATE, USER
 from asebot.bot.home.main_menu import MainMenu
 from asebot.bot.rewards.level_up import LevelUp
@@ -15,9 +14,8 @@ api = ConnectAPI()
 class UnitTest:
     def start_test(self, update, context):
         update.message.reply_text("start test")
-        switcher = Switch()
-        grade = switcher.num_to_words(context.user_data[USER.GRADE])
-        unit = switcher.num_to_words(context.user_data[USER.UNIT])
+        grade = context.user_data[USER.GRADE]
+        unit = context.user_data[USER.UNIT]
         context.user_data["unit_quiz"] = api.load_unit_quiz(grade, unit)
         if len(context.user_data["unit_quiz"]) > 0:
             level_up.validate_unit_quizz_taken(context)
@@ -25,7 +23,8 @@ class UnitTest:
             context.user_data["unit_quizz_mistakes"] = 0
             num_questions = len(context.user_data["unit_quiz"][0]["Questions"])
             update.message.reply_markdown(
-                f"Now, answer {num_questions} questions as well as you can."
+                f"Now, answer {num_questions} questions as well as you can.\n"
+                f"{context.user_data['unit_quiz'][0]['Instructions']}"
                 )
             return self.view_test_question(update, context)
         else:
@@ -78,8 +77,15 @@ class UnitTest:
 
     def test_finished(self, update, context):
         update.message.reply_text("finished")
-        results = level_up.points_medals_unit_quiz(context)
-        #should I add reading medals with these results
+        medal = level_up.points_medals_unit_quiz(context)
+        medalattained = medal['medal']
+        
+        context.user_data.setdefault(
+            "medals", dict(gold=0, silver=0, bronze=0,nomedal=0)
+            )[f"{medalattained}"] += 1
+        update.message.reply_text(
+            f"Congratulations, you got {str(medalattained)} a medal 🎉."
+            )
         return level_up.next_unit(update, context)
 
     def view_test_results(self, update, context):

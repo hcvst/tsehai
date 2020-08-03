@@ -5,6 +5,7 @@ from telegram import (InlineKeyboardButton, InlineKeyboardMarkup,
 from asebot.constants import STATE, USER
 from asebot.bot.home.main_menu import MainMenu
 from asebot.bot.rewards.level_up import LevelUp
+from asebot.bot.alocate_points import alocate_points
 
 mainmenu = MainMenu()
 level_up = LevelUp()
@@ -19,7 +20,8 @@ class LessonQuizz:
             context.user_data["lesson_quizz_mistakes"] = 0
             num_questions = len(lesson[0]["lesson_quizz"]["questions"])
             update.message.reply_markdown(
-                f"Now, answer {num_questions} questions as well as you can."
+                f"Now, answer {num_questions} questions as well as you can.\n"
+                f"{context.user_data['lesson'][0]['lesson_quizz']['instructions']}"
                 )
             return self.view_quizz_question(update, context)
         else:
@@ -73,5 +75,8 @@ class LessonQuizz:
     def quizz_finished(self, update, context):
         print("quiz finished")
         points = level_up.points_medals_lesson_quiz(context)
-        #which function to call for points
+        alocate_points(update,points["points"])
+        update.message.reply_text(
+            f"Congratulations, you got {str(points['points'])} points 🎉."
+            )
         return level_up.next_lesson(update, context)
