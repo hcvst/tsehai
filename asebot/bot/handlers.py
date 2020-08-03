@@ -479,7 +479,10 @@ root_conversation = ConversationHandler(
         ],
         
         STATE.GRADE: [
-            MessageHandler(Filters.all, english_lessons.assign_grade),
+            MessageHandler(Filters.all, english_lessons.confirm_grade)
+            # MessageHandler(Filters.regex("🟢"), english_lessons.reconfirm_grade),
+            # MessageHandler(Filters.regex("🔴"), english_lessons.english_lessons),
+            # MessageHandler(Filters.all, english_lessons.assign_grade),
         ],
         
         STATE.BOOK_REDIRECT: [
@@ -513,6 +516,16 @@ root_conversation = ConversationHandler(
         
         STATE.AUDIO_LESSON: [
             MessageHandler(Filters.regex("🇫🇲"), inprogress_lesson.lesson_page)
+        ],
+
+        STATE.COMFIRM_GRADE: [
+            MessageHandler(Filters.regex("🟢"), english_lessons.reconfirm_grade),
+            MessageHandler(Filters.regex("🔴"), english_lessons.english_lessons),
+        ],
+
+        STATE.RE_COMFIRM_GRADE: [
+            MessageHandler(Filters.regex("🟢"), english_lessons.assign_grade),
+            MessageHandler(Filters.regex("🔴"), english_lessons.english_lessons),
         ]
     },
     fallbacks=[MessageHandler(Filters.all, mainmenu.return_to_main_menu)]
