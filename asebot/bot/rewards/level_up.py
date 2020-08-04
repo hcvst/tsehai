@@ -27,9 +27,9 @@ class LevelUp:
         print("Next lesson")
         context.user_data[USER.LESSON] += 1
         update.message.reply_text(
-            "Select [Main Menu] to go to Main Menu, or [Proceed] to move to the next lesson",
+            "Select [Main Menu] to go to Main Menu, or [Next] to move to the next lesson",
             reply_markup=ReplyKeyboardMarkup([
-                [ "🏠 Main Menu", "▶ Proceed"],
+                [ "🏠 Main Menu", "▶ Next"],
             ], one_time_keyboard=False, resize_keyboard=True)
         )
         return STATE.CHOOSE_LESSON

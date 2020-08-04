@@ -173,10 +173,10 @@ class English:
             update.message.reply_text(f"You have selected unit {context.user_data[USER.UNIT]}")
             update.message.reply_text("You can choose to skip this unit by taking a unit test")
             update.message.reply_text(
-                "Select [Skip] to write the test, or [Proceed] to begin your lessons",
+                "Select [Skip] to write the test, or [Next] to begin your lessons",
                 reply_markup=ReplyKeyboardMarkup([
                     ["🏠 Return To Main Menu"],
-                    ["⏭ Skip","▶ Proceed"]
+                    ["⏭ Skip","▶ Next"]
                     ], one_time_keyboard=False, resize_keyboard=True)
                 )
             if context.user_data[USER.UNIT] not in context.user_data[USER.UNIT_CHOSEN]:
