@@ -26,7 +26,8 @@ class LessonQuizz:
             return self.view_quizz_question(update, context)
         else:
             update.message.reply_markdown(
-                "Siyaxolisa awakabikhona ama lesson quiz 🤣"
+                "There are no lesson quizzes available at the moment. "
+                "Please try again later."
                 )
             return mainmenu.main_menu(update, context)
 

@@ -114,3 +114,14 @@ class ConnectAPI:
           } """ % (grade, unit)
         )
       return client.execute(query)["unitQuizs"]
+    
+    def load_unit_quiz_length(self, grade):
+      query = gql(
+       """ 
+        {
+          unitQuizs(where:{Grade:"%s"}){
+            Unit
+            }
+          } """ % (grade)
+        )
+      return client.execute(query)
