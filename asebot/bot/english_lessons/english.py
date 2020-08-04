@@ -10,6 +10,8 @@ lessons = Lessons()
 
 class English:
     grade = None
+    unit_chosen = 1
+
     def english_lessons(self, update,context):
         if not context.user_data.get(USER.GRADE):
             update.message.reply_text(
@@ -81,27 +83,82 @@ class English:
             update.message.reply_text(
                 "Select the unit you are doing at school",
                 reply_markup=ReplyKeyboardMarkup([
-                    ["1️⃣","2️⃣"],
-                    ["3️⃣", "4️⃣"],
-                    ["5️⃣","6️⃣"],
-                    [ "7️⃣", "8️⃣"],
-                    ["9️⃣", "🔟"]
+                    ["1","2"],
+                    ["3", "4"],
+                    ["5","6"],
+                    [ "7", "8"],
+                    ["9", "10"],
+                    ["⏭ More Units"]
                 ], one_time_keyboard=False, resize_keyboard=True)
             )
             return STATE.UNIT
 
     def unit(self, update, context):
+        global unit_chosen 
+        unit_chosen = 1
+        context.user_data[USER.FINAL_UNIT] = None
+        context.user_data[USER.TEMP_UNIT] = None
+        context.user_data[USER.UNIT_CHOSEN] = []
+
         update.message.reply_text(
             "Select the unit you are doing at school",
             reply_markup=ReplyKeyboardMarkup([
-                ["1️⃣","2️⃣"],
-                ["3️⃣", "4️⃣"],
-                ["5️⃣","6️⃣"],
-                [ "7️⃣", "8️⃣"],
-                ["9️⃣", "🔟"]
+                ["1","2"],
+                ["3", "4"],
+                ["5","6"],
+                [ "7", "8"],
+                ["9", "10"],
+                ["⏭ More Units"]
             ], one_time_keyboard=False, resize_keyboard=True)
         )
         return STATE.UNIT
+
+    def unit_decision(self, update, context):
+        global unit_chosen
+        if update.message.text == "⏭ More Units":
+            if unit_chosen == 1:
+                return self.first_10_units(update, context)
+            elif unit_chosen == 2:
+                return self.second_10_units(update, context)
+        else:
+            return self.unit_choice(update, context)
+
+    def first_10_units(self, update, context):
+        global unit_chosen
+        unit_chosen += 1
+
+        update.message.reply_text(
+            "Select the unit you are doing at school",
+            reply_markup=ReplyKeyboardMarkup([
+                ["11","12"],
+                ["13", "14"],
+                ["15","16"],
+                ["17", "18"],
+                ["19", "20"],
+                ["⏭ More Units"]
+            ], one_time_keyboard=False, resize_keyboard=True)
+        )
+        return STATE.UNIT
+
+    def second_10_units(self, update, context):
+        global unit_chosen
+        unit_chosen += 1
+
+        update.message.reply_text(
+            "Select the unit you are doing at school",
+            reply_markup=ReplyKeyboardMarkup([
+                ["21","22"],
+                ["23", "24"],
+                ["25","26"],
+                [ "27", "28"],
+                ["29", "30"],
+                # ["⏭ More Units"]
+            ], one_time_keyboard=False, resize_keyboard=True)
+        )
+        return STATE.UNIT
+
+    def more_units(self, update, context):
+        pass
 
     def unit_response(self, update, context):
         
@@ -129,16 +186,21 @@ class English:
 
     def assign_unit(self, update, context,unit):
         print("Assign unit")
-
-        if unit >= 1 and unit <= 10 and not None:
+        print(unit)
+        
+        if unit >= 1 and unit <= 30 and not None:
             """ The grade and unit filters for getting the correct lessons to be done here """
             return unit
         else:
+            context.user_data[USER.FINAL_UNIT] = None
+            context.user_data[USER.TEMP_UNIT] = None
+            context.user_data[USER.UNIT_CHOSEN] = []
             return self.invalid_selection(update, context, "unit")
     
     def unit_choice(self, update, context):
         switcher = Switch()
         run_time_unit = switcher.unit(update.message.text)
+        print(run_time_unit)
         print(context.user_data[USER.UNIT_CHOSEN])
         if run_time_unit in context.user_data[USER.UNIT_CHOSEN]:
             context.user_data[USER.FINAL_UNIT] = run_time_unit
@@ -151,11 +213,14 @@ class English:
             ], one_time_keyboard=False, resize_keyboard=True)
         )
         
+        print(context.user_data[USER.TEMP_UNIT])
         if context.user_data[USER.TEMP_UNIT] is None:
+            print("First")
             unit = switcher.unit(update.message.text)
             update.message.reply_text(f"Are you sure you want to select unit {unit}?")
             context.user_data[USER.TEMP_UNIT] = self.assign_unit(update,context,unit)
         else:
+            print("Second")
             unit = context.user_data[USER.TEMP_UNIT]
             update.message.reply_text(f"Are you sure you want to select unit {unit}?")
             context.user_data[USER.FINAL_UNIT] = self.assign_unit(update,context,unit)
