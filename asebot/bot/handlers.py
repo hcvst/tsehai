@@ -404,6 +404,16 @@ root_conversation = ConversationHandler(
             MessageHandler(Filters.regex("➡️"), inprogress_lesson.next),
             MessageHandler(Filters.regex("▶"), english_lessons.proceed)
         ],
+        
+        STATE.RETRY_LESSON: [
+            MessageHandler(Filters.regex("🏠"), mainmenu.main_menu),
+            MessageHandler(Filters.regex("😃"), english_lessons.proceed)
+        ],
+        
+        STATE.RETRY_UNIT: [
+            MessageHandler(Filters.regex("🏠"), mainmenu.main_menu),
+            MessageHandler(Filters.regex("😃"), inprogress_lesson.skip_unit)
+        ],
 
         STATE.UNIT_TEST: [
             MessageHandler(Filters.all, end_of_unit_test.check_test_answer)

@@ -77,6 +77,7 @@ class English:
             )
             return STATE.GRADE
         elif selection == "unit":
+            context.user_data[USER.TEMP_UNIT] = None
             update.message.reply_text(
                 "You entered an invalid unit"
             )
@@ -127,6 +128,7 @@ class English:
         global unit_chosen
         unit_chosen += 1
 
+        context.user_data[USER.TEMP_UNIT] = None
         update.message.reply_text(
             "Select the unit you are doing at school",
             reply_markup=ReplyKeyboardMarkup([
@@ -168,7 +170,6 @@ class English:
             context.user_data[USER.UNIT] = context.user_data[USER.FINAL_UNIT]
             context.user_data[USER.FINAL_UNIT] = None
             context.user_data[USER.TEMP_UNIT] = None
-            context.user_data[USER.UNIT_CHOSEN].append(context.user_data[USER.UNIT])
             update.message.reply_text(f"You have selected unit {context.user_data[USER.UNIT]}")
             update.message.reply_text("You can choose to skip this unit by taking a unit test")
             update.message.reply_text(
@@ -178,6 +179,10 @@ class English:
                     ["⏭ Skip","▶ Proceed"]
                     ], one_time_keyboard=False, resize_keyboard=True)
                 )
+            if context.user_data[USER.UNIT] not in context.user_data[USER.UNIT_CHOSEN]:
+                context.user_data[USER.UNIT_CHOSEN].append(context.user_data[USER.UNIT])
+            
+            print(context.user_data[USER.UNIT_CHOSEN])
             return STATE.LESSON
         
 
@@ -200,8 +205,6 @@ class English:
     def unit_choice(self, update, context):
         switcher = Switch()
         run_time_unit = switcher.unit(update.message.text)
-        print(run_time_unit)
-        print(context.user_data[USER.UNIT_CHOSEN])
         if run_time_unit in context.user_data[USER.UNIT_CHOSEN]:
             context.user_data[USER.FINAL_UNIT] = run_time_unit
             return self.unit_response(update, context)
@@ -233,6 +236,7 @@ class English:
         if grade >= 1 and grade <= 8 and not None:
             context.user_data[USER.FINAL_UNIT] = None
             context.user_data[USER.TEMP_UNIT] = None
+            context.user_data[USER.UNIT_MARKS] = None
             context.user_data[USER.UNIT_CHOSEN] = []
             context.user_data[USER.GRADE] = grade
             context.user_data[USER.LESSON] = 1
