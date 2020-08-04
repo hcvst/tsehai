@@ -13,6 +13,16 @@ class LevelUp:
         #points allocation and moving on to next unit
         return mainmenu.main_menu(update, context)
     
+    def retry_lesson(self, update, context):
+        print("Retry lesson")
+        update.message.reply_text(
+            "Select [Main Menu] to go to Main Menu, or [try again] to return to the lesson",
+            reply_markup=ReplyKeyboardMarkup([
+                [ "🏠 Main Menu", "😃 try Again"],
+            ], one_time_keyboard=False, resize_keyboard=True)
+        )
+        return STATE.RETRY_LESSON
+    
     def next_lesson(self, update, context):
         print("Next lesson")
         context.user_data[USER.LESSON] += 1

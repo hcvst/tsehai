@@ -76,8 +76,18 @@ class LessonQuizz:
     def quizz_finished(self, update, context):
         print("quiz finished")
         points = level_up.points_medals_lesson_quiz(context)
-        alocate_points(update,points["points"])
-        update.message.reply_text(
-            f"Congratulations, you got {str(points['points'])} points 🎉."
-            )
-        return level_up.next_lesson(update, context)
+        pointsattained = points["points"]
+        percentattained = str(points["percentage"])
+        alocate_points(update, pointsattained)
+        if percentattained >= "70":
+            update.message.reply_text(
+                f"Congratulations, you got {pointsattained} points 🎉."
+                )
+            update.message.reply_text("You can now got to the next lesson YaY!!!")
+            return level_up.next_lesson(update, context)
+        elif percentattained <= "69":
+            update.message.reply_text(
+                f"Sorry 😔, you got {pointsattained} points but don't worry you can still retry 😃"
+                )
+            return level_up.retry_lesson(update, context)
+        

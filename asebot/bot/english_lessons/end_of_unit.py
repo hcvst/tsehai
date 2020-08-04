@@ -84,10 +84,10 @@ class UnitTest:
         context.user_data.setdefault(
             "medals", dict(gold=0, silver=0, bronze=0,nomedal=0)
             )[f"{medalattained}"] += 1
-        update.message.reply_text(
+        if percentageattained >= 70:
+            update.message.reply_text(
             f"Congratulations, you got a {str(medalattained)} medal 🎉."
             )
-        if percentageattained >= 70:
             self.check_percentage(context, percentageattained)
             numberofquizzes = len(api.load_unit_quiz_length(context.user_data[USER.GRADE]))
             quizlength = len(context.user_data[USER.UNIT_MARKS])
@@ -99,6 +99,8 @@ class UnitTest:
                 update.message.reply_text(f"You have unlocked a new grade {context.user_data[USER.GRADE] + 1}")
                 context.user_data[USER.GRADE] += 1 
                 return mainmenu.main_menu(update, context)
+        
+        return self.view_test_results(update, context)
 
     def check_percentage(self,context, percentage):
         if context.user_data[USER.UNIT_MARKS] is not None:
@@ -117,4 +119,27 @@ class UnitTest:
 
     def view_test_results(self, update, context):
         update.message.reply_text("results")
-        return mainmenu.main_menu(update, context)
+        if context.user_data[USER.UNIT_MARKS] is not None:
+            update.message.reply_text("These are the quizzes you have written and passed.\n")
+            update.message.reply_text("Good Luck on the next one's 😃")
+            results = context.user_data[USER.UNIT_MARKS].sort()
+            for elements in results:
+                update.message.reply_text("These are you unit quiz Results")
+                update.message.reply_text(f"units:{elements} results:{results[elements]}")
+            
+            update.message.reply_text(
+                "Select [Main Menu] to go to Main Menu, or [try again] to return to the unit",
+                reply_markup=ReplyKeyboardMarkup([
+                    [ "🏠 Main Menu", "😃 try Again"],
+                    ], one_time_keyboard=False, resize_keyboard=True)
+                )
+        else:
+            update.message.reply_text("Sorry you haven't passed any quizzes at the moment\n")
+            update.message.reply_text("Good Luck on the next one's 😃")
+            update.message.reply_text(
+                "Select [Main Menu] to go to Main Menu, or [try again] to return to the unit",
+                reply_markup=ReplyKeyboardMarkup([
+                    [ "🏠 Main Menu", "😃 try Again"],
+                    ], one_time_keyboard=False, resize_keyboard=True)
+                )
+        return STATE.RETRY_UNIT
