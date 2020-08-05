@@ -99,7 +99,6 @@ class English:
         unit_chosen = 1
         context.user_data[USER.FINAL_UNIT] = None
         context.user_data[USER.TEMP_UNIT] = None
-        context.user_data[USER.UNIT_CHOSEN] = []
 
         update.message.reply_text(
             "Select the unit you are doing at school",
