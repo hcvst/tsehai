@@ -24,8 +24,6 @@ class English:
                 ], one_time_keyboard=False, resize_keyboard=True)
             )
             return STATE.GRADE
-        # elif not context.user_data.get(USER.GRADE) and not context.user_data.get(USER.UNIT):
-        #     pass
         else:
             return self.unit(update, context)
 
@@ -181,7 +179,6 @@ class English:
             if context.user_data[USER.UNIT] not in context.user_data[USER.UNIT_CHOSEN]:
                 context.user_data[USER.UNIT_CHOSEN].append(context.user_data[USER.UNIT])
             
-            print(context.user_data[USER.UNIT_CHOSEN])
             return STATE.LESSON
         
 
@@ -189,8 +186,6 @@ class English:
         return lessons.open_lessons(update, context)
 
     def assign_unit(self, update, context,unit):
-        print("Assign unit")
-        print(unit)
         
         if unit >= 1 and unit <= 30 and not None:
             """ The grade and unit filters for getting the correct lessons to be done here """
@@ -215,14 +210,11 @@ class English:
             ], one_time_keyboard=False, resize_keyboard=True)
         )
         
-        print(context.user_data[USER.TEMP_UNIT])
         if context.user_data[USER.TEMP_UNIT] is None:
-            print("First")
             unit = switcher.unit(update.message.text)
             update.message.reply_text(f"Are you sure you want to select unit {unit}?")
             context.user_data[USER.TEMP_UNIT] = self.assign_unit(update,context,unit)
         else:
-            print("Second")
             unit = context.user_data[USER.TEMP_UNIT]
             update.message.reply_text(f"Are you sure you want to select unit {unit}?")
             context.user_data[USER.FINAL_UNIT] = self.assign_unit(update,context,unit)

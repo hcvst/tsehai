@@ -20,7 +20,6 @@ class Lessons:
     """
 
     def open_lessons(self, update, context):
-        print("open lessons")
         context.user_data["lesson_page_idx"] = 0
 
         grade = context.user_data[USER.GRADE]
@@ -34,7 +33,6 @@ class Lessons:
                 "Please try again later."
                 )
             return self.skip_unit(update, context)
-        print(context.user_data["lesson"])
         return self.audio_introduction(update,context)
 
     """ equivalent to view page """

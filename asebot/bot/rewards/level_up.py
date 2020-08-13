@@ -7,14 +7,11 @@ mainmenu = MainMenu()
 
 class LevelUp:
     def next_unit(self, update, context):
-        print("level up")
         update.message.reply_text("Next unit")
-        print("I am here")
-        #points allocation and moving on to next unit
+        #points allocation and moving on to the next unit
         return mainmenu.main_menu(update, context)
     
     def retry_lesson(self, update, context):
-        print("Retry lesson")
         update.message.reply_text(
             "Select [Main Menu] to go to Main Menu, or [try again] to return to the lesson",
             reply_markup=ReplyKeyboardMarkup([
@@ -24,7 +21,6 @@ class LevelUp:
         return STATE.RETRY_LESSON
     
     def next_lesson(self, update, context):
-        print("Next lesson")
         context.user_data[USER.LESSON] += 1
         update.message.reply_text(
             "Select [Main Menu] to go to Main Menu, or [Next] to move to the next lesson",
@@ -61,7 +57,6 @@ class LevelUp:
                     "percentage": None
                     }
                 }
-        print(context.user_data[USER.LESSON_QUIZ])
     
     def validate_unit_quizz_taken(self, context):
         grade = context.user_data[USER.GRADE]
@@ -87,7 +82,6 @@ class LevelUp:
                     "percentage": None
                     }
                 }
-        print(context.user_data[USER.UNIT_QUIZ])
     
     def points_medals_unit_quiz(self, context):
         numberofquestions = len(context.user_data["unit_quiz"][0]["Questions"])
