@@ -105,7 +105,10 @@ class UnitQuizz:
                 return level_up.next_unit(update, context)
             elif quizlength == numberofquizzes:
                 update.message.reply_text(f"You have unlocked a new grade {context.user_data[USER.GRADE] + 1}")
-                context.user_data[USER.GRADE] += 1 
+                if  context.user_data[USER.GRADE] + 1 == 9:
+                    update.message.reply_text(f"You are Done with english lessons, but you can still access grade 8nand the library😜😜😜")
+                else:
+                    context.user_data[USER.GRADE] += 1 
                 return mainmenu.main_menu(update, context)
         
         return self.view_test_results(update, context)

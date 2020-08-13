@@ -36,7 +36,7 @@ class LevelUp:
         lesson = context.user_data[USER.LESSON]
         element_id = int(context.user_data["lesson"][0]["id"])
         
-        if context.user_data[USER.LESSON_QUIZ] is not None:
+        if context.user_data.get(USER.LESSON_QUIZ) is not None:
             if element_id in context.user_data[USER.LESSON_QUIZ].keys():
                 context.user_data[USER.LESSON_QUIZ][element_id]["taken"] = "false"
             else:
@@ -63,7 +63,7 @@ class LevelUp:
         unit = context.user_data[USER.UNIT]
         element_id = int(context.user_data["unit_quiz"][0]["id"])
         
-        if context.user_data[USER.UNIT_QUIZ] is not None:
+        if context.user_data.get(USER.UNIT_QUIZ) is not None:
             if element_id in context.user_data[USER.UNIT_QUIZ].keys():
                 context.user_data[USER.UNIT_QUIZ][element_id]["taken"] = "false"
             else:

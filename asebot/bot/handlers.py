@@ -9,8 +9,7 @@ from telegram.ext import (CallbackQueryHandler, CommandHandler,
 
 import asebot.api
 import asebot.config
-import asebot.pointsbrain
-from asebot.pointsbrain import points_medals_brain
+from asebot.bot.rewards.points import Points
 from asebot.constants import STATE, USER
 from asebot.bot.alocate_points import alocate_points
 from asebot.bot.leaderboard import leaderboard
@@ -29,6 +28,7 @@ lessonQuizz = LessonQuizz()
 mainmenu = MainMenu()
 end_of_unit_test = UnitQuizz()
 reading = Reading()
+points = Points()
 
 
 def error(update, context):
@@ -49,9 +49,6 @@ def start(update, context):
             "Are you ready? Let's get started!"
         )
         context.user_data[USER.REPEAT_VISITOR] = True
-        context.user_data[USER.QUIZZ_TAKEN] = None
-        context.user_data[USER.UNIT_QUIZ] = None
-        context.user_data[USER.LESSON_QUIZ] = None
     else:
         update.message.reply_text(f"Hello! 👋")
         update.message.reply_text(f"Nice to see you again, {user.first_name}.")
@@ -155,7 +152,7 @@ def book_finished(update, context):
 
 def start_quizz(update, context):
     book = context.user_data["book"]
-    asebot.pointsbrain.validate_quizz_taken(context)
+    points.validate_quizz_taken(context)
     
     num_questions = len(book["quizz"]["questions"])
     if num_questions > 0:
@@ -227,7 +224,7 @@ def quizz_finished(update, context):
     user = update.message.from_user
 
     quizz_mistakes = context.user_data["quizz_mistakes"]
-    medal = points_medals_brain(context)
+    medal = points.points_medals_brain(context)
     medalattained = medal['medal']
 
     context.user_data.setdefault(
@@ -248,11 +245,18 @@ def quizz_finished(update, context):
         update.message.reply_text(
             f"You made a few mistakes, {user.first_name}. "
             "That's ok. You are still learning.")
-    asebot.pointsbrain.update_reading_level(update, context)
+    points.update_reading_level(update, context)
     return mainmenu.main_menu(update, context)
 
 
 def medals(update, context):
+    context.user_data["levelSelectionPictures"] = asebot.api.load_level_Selection()
+    if not context.user_data.get(USER.MEDALS_SEEN):
+        update.message.reply_photo(
+                photo=asebot.config.API_SERVER+context.user_data["levelSelectionPictures"][0]['Image'][0]['url'],
+        )
+        context.user_data[USER.MEDALS_SEEN] = True
+
     medals = context.user_data.setdefault(
         "medals", dict(gold=0, silver=0, bronze=0))
     update.message.reply_text(
@@ -359,7 +363,8 @@ root_conversation = ConversationHandler(
             MessageHandler(Filters.regex(r'📔'), english_lessons.english_lessons),
             MessageHandler(Filters.regex(r'📋'), display_leaderboard),
             MessageHandler(Filters.regex(r'🎓'), display_quiz_marks),
-            MessageHandler(Filters.regex("🏠"), mainmenu.main_menu)
+            MessageHandler(Filters.regex("🏠"), mainmenu.main_menu),
+            MessageHandler(Filters.regex(r'😜'), mainmenu.resetbutt)
         ],
         STATE.BROWSE_BOOKS: [
             MessageHandler(Filters.regex(r'📖'), read_book),
