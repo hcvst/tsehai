@@ -15,9 +15,9 @@ def alocate_points(update, points):
         api.updatePoints(id, points)
 
 def user_found(chatId):
-    userPoints = api.getPoints(chatId)
+    userPoints = api.getPoints(chatId)['points']
     
-    if len(userPoints['points']) == 0:
-        return None
+    if len(userPoints) == 0:
+        return 0
     else:
-        return userPoints['points'][0]
+        return userPoints[0]

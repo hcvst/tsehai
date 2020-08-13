@@ -115,7 +115,6 @@ class UnitTest:
             context.user_data[USER.UNIT_MARKS] = {
                 context.user_data[USER.UNIT] : percentage
                 }
-        print(context.user_data[USER.UNIT_MARKS])
 
     def view_test_results(self, update, context):
         update.message.reply_text("results")
