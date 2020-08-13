@@ -37,6 +37,7 @@ class UnitQuizz:
     def view_test_question(self, update, context):
         unit_quizz_idx = context.user_data["unit_quizz_idx"]
         qna = context.user_data["unit_quiz"][0]["Questions"][unit_quizz_idx]
+        audio = qna["audio"]
         question = qna["question"]
         answers = [qna["answer"]] + [d["wrong_answer"] for d in qna["distractors"]]
         random.shuffle(answers)
@@ -46,11 +47,18 @@ class UnitQuizz:
             one_time_keyboard=False,
             resize_keyboard=True)
         if qna["image"]:
-            update.message.reply_photo(
-                photo=asebot.config.API_SERVER+qna["image"]["url"],
-                caption=text,
-                parse_mode='Markdown',
-                reply_markup=keyboard
+            if not audio:
+                update.message.reply_photo(
+                    photo=asebot.config.API_SERVER+qna["image"]["url"],
+                    caption=text,
+                    parse_mode='Markdown',
+                    reply_markup=keyboard
+                    )
+            else:
+                audio_href = asebot.config.API_SERVER+qna["image"]["url"],
+                update.message.reply_voice(
+                    audio_href,
+                    reply_markup=keyboard
                 )
         else:
             update.message.reply_markdown(text, reply_markup=keyboard)
