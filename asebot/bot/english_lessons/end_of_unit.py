@@ -11,7 +11,7 @@ mainmenu = MainMenu()
 level_up = LevelUp()
 api = ConnectAPI()
 
-class UnitTest:
+class UnitQuizz:
     def start_test(self, update, context):
         update.message.reply_text("start test")
         grade = context.user_data[USER.GRADE]
@@ -54,7 +54,7 @@ class UnitTest:
                 )
         else:
             update.message.reply_markdown(text, reply_markup=keyboard)
-        return STATE.UNIT_TEST
+        return STATE.UNIT_QUIZZ
 
     def check_test_answer(self, update, context):
         provided_answer = update.message.text.strip()

@@ -1,7 +1,7 @@
 from telegram import (InlineKeyboardButton, InlineKeyboardMarkup,
                       ReplyKeyboardMarkup)
 from asebot.constants import STATE, USER
-from asebot.bot.english_lessons.end_of_unit import UnitTest
+from asebot.bot.english_lessons.end_of_unit import UnitQuizz
 from asebot.bot.english_lessons.lesson_quizz import LessonQuizz
 import asebot.config
 from asebot.connect_api import ConnectAPI
@@ -9,7 +9,7 @@ from asebot.connect_api import ConnectAPI
 
 api = ConnectAPI()
 
-end_of_unit_test = UnitTest()
+end_of_unit_test = UnitQuizz()
 lessonQuizz = LessonQuizz()
 #english_lessons = English()
 
