@@ -66,17 +66,25 @@ class Lessons:
             resize_keyboard=True
         )
         update.message.reply_markdown(
-            'testing',
+            "Starting Lesson",
             reply_markup=keyboard
         )
-        
+        audio=page["audio"]
         if len(page["images"]) > 0:
-            update.message.reply_photo(
-                photo=asebot.config.API_SERVER+page["images"][0]["url"],
-                caption=page["text"],
-                parse_mode='Markdown',
-                reply_markup=keyboard
-            )
+            if not audio:
+                update.message.reply_photo(
+                    photo=asebot.config.API_SERVER+page["images"][0]["url"],
+                    caption=page["text"],
+                    parse_mode='Markdown',
+                    reply_markup=keyboard
+                )
+            else:
+                audio_href = asebot.config.API_SERVER+page["images"][0]["url"],
+                update.message.reply_voice(
+                    audio_href,
+                    caption=page["text"],
+                    reply_markup=keyboard
+                )
         else:
             update.message.reply_markdown(
                 page["text"],
