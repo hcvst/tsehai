@@ -70,7 +70,6 @@ class Reading:
         
         if level >= 1 and level <= 4 and not None:
             context.user_data[USER.READING_LEVEL] = level
-            print(context.user_data)
             return self.first_confirm_level(update, context)
         else:
             return self.invalid_selection(update, context, "level")

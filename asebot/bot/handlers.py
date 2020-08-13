@@ -19,7 +19,7 @@ from asebot.bot.english_lessons.lessons import Lessons
 from asebot.bot.reading.reading import Reading
 from asebot.bot.home.main_menu import MainMenu
 from asebot.bot.english_lessons.lesson_quizz import LessonQuizz
-from asebot.bot.english_lessons.end_of_unit import UnitTest
+from asebot.bot.english_lessons.end_of_unit import UnitQuizz
 
 
 logger = logging.getLogger(__name__)
@@ -27,7 +27,7 @@ english_lessons = English()
 inprogress_lesson = Lessons()
 lessonQuizz = LessonQuizz()
 mainmenu = MainMenu()
-end_of_unit_test = UnitTest()
+end_of_unit_test = UnitQuizz()
 reading = Reading()
 
 
@@ -423,7 +423,7 @@ root_conversation = ConversationHandler(
             MessageHandler(Filters.regex("😃"), inprogress_lesson.skip_unit)
         ],
 
-        STATE.UNIT_TEST: [
+        STATE.UNIT_QUIZZ: [
             MessageHandler(Filters.all, end_of_unit_test.check_test_answer)
         ],
 

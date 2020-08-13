@@ -29,7 +29,6 @@ def validate_quizz_taken(context):
                 "percentage": None
                 }
             }
-    print(context.user_data)
 
     
 
@@ -42,7 +41,7 @@ def points_medals_brain(context):
     element_id = int(context.user_data["books"][book_idx]["id"]) 
     validatemedal = context.user_data[USER.QUIZZ_TAKEN][element_id]
     update_percentage(validatemedal,percentage)
-    print(validatemedal)
+    
     if validatemedal["taken"] == "true":
         if percentage == 100:
             medalcalculation = {
@@ -64,7 +63,7 @@ def points_medals_brain(context):
                 "medal": "nomedal",
                 "percentage": percentage
                 }
-        print(medalcalculation)
+        
         
         return medalcalculation    
     else:
@@ -72,7 +71,7 @@ def points_medals_brain(context):
             "medal": "nomedal",
             "percentage": percentage
             }
-        print(medalcalculation)
+        
         
         return medalcalculation
     
