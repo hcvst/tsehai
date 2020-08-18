@@ -52,7 +52,7 @@ class LessonQuizz:
                     reply_markup=keyboard
                     )
             else:
-                audio_href = asebot.config.API_SERVER+qna["image"]["url"],
+                audio_href = asebot.config.API_SERVER+qna["image"]["url"]
                 update.message.reply_voice(
                     audio_href,
                     reply_markup=keyboard

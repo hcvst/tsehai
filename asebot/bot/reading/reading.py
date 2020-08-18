@@ -11,9 +11,10 @@ class Reading:
         context.user_data["levelSelectionPictures"] = asebot.api.load_level_Selection()
 
         if not context.user_data.get(USER.READING_LEVEL):
-            update.message.reply_text("Wow!")
-            update.message.reply_text("I love reading too!")
-            update.message.reply_text("Look at the pictures and choose your reading level")
+            # update.message.reply_text("Choose your reading level💃")
+            # update.message.reply_text("Wow!")
+            # update.message.reply_text("I love reading too!")
+            update.message.reply_text("Look at the pictures and choose your reading level💃")
 
             update.message.reply_photo(
                 photo=asebot.config.API_SERVER+context.user_data["levelSelectionPictures"][0]['Image'][0]['url'],

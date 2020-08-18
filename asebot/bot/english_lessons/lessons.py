@@ -77,7 +77,8 @@ class Lessons:
                     reply_markup=keyboard
                 )
             else:
-                audio_href = asebot.config.API_SERVER+page["images"][0]["url"],
+                audio_href = asebot.config.API_SERVER+page["images"][0]["url"]
+                print(audio_href)
                 update.message.reply_voice(
                     audio_href,
                     caption=page["text"],

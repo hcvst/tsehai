@@ -39,15 +39,15 @@ def start(update, context):
     user = update.message.from_user
     if not context.user_data.get(USER.REPEAT_VISITOR):
         update.message.reply_text(
-            f"👋 Hello, I'm Tsehai, the reading bot. I will help you to become a better reader."
+            f"👋 Hello, I'm Tsehai the Distance English Learning bot!"
         )
-        update.message.reply_text(
-            f"Just read the stories and answer the questions as well as you can."
-        )
-        update.message.reply_text(
-            f"I will show you new stories that match your own reading ability, helping you improve. "
-            "Are you ready? Let's get started!"
-        )
+        # update.message.reply_text(
+        #     f"Just read the stories and answer the questions as well as you can."
+        # )
+        # update.message.reply_text(
+        #     f"I will show you new stories that match your own reading ability, helping you improve. "
+        #     "Are you ready? Let's get started!"
+        # )
         context.user_data[USER.REPEAT_VISITOR] = True
     else:
         update.message.reply_text(f"Hello! 👋")
@@ -245,15 +245,27 @@ def quizz_finished(update, context):
         update.message.reply_text(
             f"You made a few mistakes, {user.first_name}. "
             "That's ok. You are still learning.")
+    
     points.update_reading_level(update, context)
-    return mainmenu.main_menu(update, context)
+
+    update.message.reply_text(
+            "Would you like to read another book?",
+            reply_markup=ReplyKeyboardMarkup([
+                [ "🟢 Yes", "🔴 No"],
+            ], one_time_keyboard=False, resize_keyboard=True)
+        )
+    return STATE.BOOK_FINISHED
+
+def next_book_after_quiz(update, context):
+    context.user_data["book_idx"] += 1
+    return view_book(update,context)
 
 
 def medals(update, context):
     context.user_data["levelSelectionPictures"] = asebot.api.load_level_Selection()
     if not context.user_data.get(USER.MEDALS_SEEN):
         update.message.reply_photo(
-                photo=asebot.config.API_SERVER+context.user_data["levelSelectionPictures"][0]['Image'][0]['url'],
+                photo=asebot.config.API_SERVER+context.user_data["levelSelectionPictures"][1]['Image'][0]['url'],
         )
         context.user_data[USER.MEDALS_SEEN] = True
 
@@ -426,6 +438,11 @@ root_conversation = ConversationHandler(
         STATE.RETRY_UNIT: [
             MessageHandler(Filters.regex("🏠"), mainmenu.main_menu),
             MessageHandler(Filters.regex("😃"), inprogress_lesson.skip_unit)
+        ],
+
+        STATE.BOOK_FINISHED: [
+            MessageHandler(Filters.regex("🔴"), mainmenu.main_menu),
+            MessageHandler(Filters.regex("🟢"), next_book_after_quiz),
         ],
 
         STATE.UNIT_QUIZZ: [
