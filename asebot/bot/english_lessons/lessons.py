@@ -63,10 +63,10 @@ class Lessons:
             one_time_keyboard=False,
             resize_keyboard=True
         )
-        update.message.reply_markdown(
-            "Starting Lesson",
-            reply_markup=keyboard
-        )
+        # update.message.reply_markdown(
+        #     "Starting Lesson",
+        #     reply_markup=keyboard
+        # )
         audio=page["audio"]
         if len(page["images"]) > 0:
             if not audio:

@@ -55,6 +55,7 @@ class LessonQuizz:
                 audio_href = asebot.config.API_SERVER+qna["image"]["url"]
                 update.message.reply_voice(
                     audio_href,
+                    caption=text,
                     reply_markup=keyboard
                 )
         else:
