@@ -13,7 +13,6 @@ api = ConnectAPI()
 
 class UnitQuizz:
     def start_test(self, update, context):
-        update.message.reply_text("start test")
         grade = context.user_data[USER.GRADE]
         unit = context.user_data[USER.UNIT]
         context.user_data["unit_quiz"] = api.load_unit_quiz(grade, unit)
@@ -58,6 +57,7 @@ class UnitQuizz:
                 audio_href = asebot.config.API_SERVER+qna["image"]["url"]
                 update.message.reply_voice(
                     audio_href,
+                    caption=text,
                     reply_markup=keyboard
                 )
         else:
@@ -92,40 +92,44 @@ class UnitQuizz:
         context.user_data.setdefault(
             "medals", dict(gold=0, silver=0, bronze=0,nomedal=0)
             )[f"{medalattained}"] += 1
-        if percentageattained >= 70:
+        #if percentageattained >= 70:
+        userGrade = context.user_data[USER.GRADE]
+        self.check_percentage(context, percentageattained)
+        numberofquizzes = len(api.load_unit_quiz_length(userGrade))
+        quizlength = len(context.user_data[USER.UNIT_MARKS][userGrade])
+        
+        if percentageattained >= 70 :
             update.message.reply_text(
-            f"Congratulations, you got a {str(medalattained)} medal 🎉."
-            )
-            self.check_percentage(context, percentageattained)
-            numberofquizzes = len(api.load_unit_quiz_length(context.user_data[USER.GRADE]))
-            quizlength = len(context.user_data[USER.UNIT_MARKS])
-            if  quizlength != numberofquizzes :
-                context.user_data[USER.UNIT_CHOSEN].append(context.user_data[USER.UNIT] + 1)
-                update.message.reply_text(f"You can now access a new unit {context.user_data[USER.UNIT] + 1}")
-                return level_up.next_unit(update, context)
-            elif quizlength == numberofquizzes:
-                update.message.reply_text(f"You have unlocked a new grade {context.user_data[USER.GRADE] + 1}")
-                if  context.user_data[USER.GRADE] + 1 == 9:
-                    update.message.reply_text(f"You are Done with english lessons, but you can still access grade 8nand the library😜😜😜")
-                else:
-                    context.user_data[USER.GRADE] += 1 
-                return mainmenu.main_menu(update, context)
+                f"Congratulations, you got a {str(medalattained)} medal 🎉."
+                )
+            context.user_data[USER.UNIT_CHOSEN].append(context.user_data[USER.UNIT] + 1)
+            update.message.reply_text(f"You can now access a new unit {context.user_data[USER.UNIT] + 1}")
+            return level_up.next_unit(update, context)
+        elif quizlength == numberofquizzes:
+            update.message.reply_text(f"You have unlocked a new grade {context.user_data[USER.GRADE] + 1}, Congratulations 🎉.")
+            if  context.user_data[USER.GRADE] + 1 == 9:
+                update.message.reply_text(f"You are Done with english lessons, but you can still access any grade and the library😜😜😜")
+            else:
+                context.user_data[USER.GRADE] += 1
+            #might have to create a grade decision state
+            return mainmenu.main_menu(update, context)
         
         return self.view_test_results(update, context)
 
     def check_percentage(self,context, percentage):
-        if context.user_data[USER.UNIT_MARKS] is not None:
-            if context.user_data[USER.UNIT] in context.user_data[USER.UNIT_MARKS].keys():
-                if percentage > context.user_data[USER.UNIT_MARKS][context.user_data[USER.UNIT]]:
-                    context.user_data[USER.UNIT_MARKS][context.user_data[USER.UNIT]] = percentage
-            else:
-                context.user_data[USER.UNIT_MARKS] = {
-                context.user_data[USER.UNIT] : percentage
-                }
-        else:
-            context.user_data[USER.UNIT_MARKS] = {
-                context.user_data[USER.UNIT] : percentage
-                }
+        userGrade = context.user_data[USER.GRADE]
+        # if context.user_data[USER.UNIT_MARKS] is not None:
+        #     # if context.user_data[USER.UNIT] in context.user_data[USER.UNIT_MARKS].keys():
+        #     #     if percentage > context.user_data[USER.UNIT_MARKS][context.user_data[USER.UNIT]]:
+        #     #         context.user_data[USER.UNIT_MARKS][context.user_data[USER.UNIT]] = percentage
+        #     # else:
+        #     context.user_data[USER.UNIT_MARKS][userGrade] = {
+        #     context.user_data[USER.UNIT] : percentage
+        #     }
+        # else:
+        context.user_data[USER.UNIT_MARKS][userGrade] = {
+            context.user_data[USER.UNIT] : percentage
+            }
 
     def view_test_results(self, update, context):
         update.message.reply_text("results")
@@ -134,7 +138,7 @@ class UnitQuizz:
             update.message.reply_text("Good Luck on the next one's 😃")
             results = context.user_data[USER.UNIT_MARKS].sort()
             for elements in results:
-                update.message.reply_text("These are you unit quiz Results")
+                update.message.reply_text("These are your unit quiz Results")
                 update.message.reply_text(f"units:{elements} results:{results[elements]}")
             
             update.message.reply_text(

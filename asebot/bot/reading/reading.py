@@ -7,14 +7,17 @@ import asebot.api
 
 
 class Reading:
+    
     def reading_level(self, update, context):
         context.user_data["levelSelectionPictures"] = asebot.api.load_level_Selection()
+        
 
-        if not context.user_data.get(USER.READING_LEVEL):
+        if not context.user_data.get("levelClicked"):
             # update.message.reply_text("Choose your reading level💃")
             # update.message.reply_text("Wow!")
             # update.message.reply_text("I love reading too!")
             update.message.reply_text("Look at the pictures and choose your reading level💃")
+            context.user_data["levelClicked"] = 'clicked'
 
             update.message.reply_photo(
                 photo=asebot.config.API_SERVER+context.user_data["levelSelectionPictures"][0]['Image'][0]['url'],
@@ -29,6 +32,7 @@ class Reading:
         else:
             update.message.reply_text(f"🏛️ The Library")
             context.user_data["book_idx"] = 0
+            context.user_data["levelClicked"] = None
 
             if len(context.user_data["books"]) == 0:
                 update.message.reply_text(
@@ -71,7 +75,7 @@ class Reading:
         
         if level >= 1 and level <= 4 and not None:
             context.user_data[USER.READING_LEVEL] = level
-            return self.first_confirm_level(update, context)
+            return self.yes_proceed(update, context)
         else:
             return self.invalid_selection(update, context, "level")
         # return self.reading_level(update, context)

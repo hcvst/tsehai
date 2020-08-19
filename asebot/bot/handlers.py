@@ -190,6 +190,7 @@ def view_quizz_question(update, context):
             audio_href = asebot.config.API_SERVER+qna["image"]["url"]
             update.message.reply_voice(
                 audio_href,
+                caption=text,
                 reply_markup=keyboard
             )
     else:
@@ -286,16 +287,16 @@ def medals(update, context):
     return STATE.STARTED
 
 def display_quiz_marks(update, context):
-    books = context.user_data[USER.QUIZZ_TAKEN]
-    average = 0
     numberOfquizz = 0
+    
     update.message.reply_text(
         "Your Quiz Marks\n"
         "To go to a book click on its Book Id value"
     )
-    if context.user_data[USER.QUIZZ_TAKEN] is not None:
-        numberOfquizz = len(context.user_data[USER.QUIZZ_TAKEN])
-    if books is not None:
+    if context.user_data.get(USER.QUIZZ_TAKEN) is not None:
+        books = context.user_data[USER.QUIZZ_TAKEN]
+        numberOfquizz = len(books)
+        average = 0
         for book_elements in books:
             if books[book_elements]['level'] == context.user_data[USER.READING_LEVEL]:
                 if books[book_elements]['percentage'] >= 80:
@@ -314,6 +315,21 @@ def display_quiz_marks(update, context):
             "You have not written any quizzes on this level Yet\n"
             "Good Luck with Your reading!!!\n"
             )
+    
+    if context.user_data.get(USER.UNIT_MARKS) is not None:
+        update.message.reply_text(
+            "The averages you got for your english lessons grades Are:\n"
+            )
+        userGrade = context.user_data[USER.GRADE]
+        gradeMarks = context.user_data[USER.UNIT_MARKS][userGrade]
+        for grade_elements in gradeMarks:
+            numberOfunitquizz = len(gradeMarks[grade_elements])
+            averageGrades = 0
+            for unit_quiz_marks in gradeMarks[grade_elements]:
+                averageGrades = averageGrades + gradeMarks[grade_elements][unit_quiz_marks]
+            update.message.reply_text(
+                f"In grade {grade_elements} your average is {round(averageGrades/numberOfunitquizz)}"
+                )
     
     update.message.reply_text(
         f"What would you like to do?",
@@ -405,7 +421,7 @@ root_conversation = ConversationHandler(
         ],
         
         STATE.GRADE: [
-            MessageHandler(Filters.all, english_lessons.confirm_grade)
+            MessageHandler(Filters.all, english_lessons.assign_grade)
         ],
         
         STATE.BOOK_REDIRECT: [
@@ -414,14 +430,14 @@ root_conversation = ConversationHandler(
         ],
 
         STATE.UNIT: [
+            MessageHandler(Filters.regex(r'↩️'), english_lessons.unit),
             MessageHandler(Filters.all, english_lessons.unit_decision)
-            # MessageHandler(Filters.all, english_lessons.unit_choice)
         ],
         
-        STATE.UNIT_CHOICE: [
-            MessageHandler(Filters.regex(r'🟢'), english_lessons.unit_response),
-            MessageHandler(Filters.regex(r'🔴'), english_lessons.unit)
-        ],
+        # STATE.UNIT_CHOICE: [
+        #     MessageHandler(Filters.regex(r'🟢'), english_lessons.unit_response),
+        #     MessageHandler(Filters.regex(r'🔴'), english_lessons.unit)
+        # ],
 
         STATE.LESSON: [
             MessageHandler(Filters.regex("🏠"), mainmenu.main_menu),
@@ -462,15 +478,15 @@ root_conversation = ConversationHandler(
             MessageHandler(Filters.regex("🇫🇲"), inprogress_lesson.lesson_page)
         ],
 
-        STATE.COMFIRM_GRADE: [
-            MessageHandler(Filters.regex("🟢"), english_lessons.reconfirm_grade),
-            MessageHandler(Filters.regex("🔴"), english_lessons.english_lessons),
-        ],
+        # STATE.COMFIRM_GRADE: [
+        #     MessageHandler(Filters.regex("🟢"), english_lessons.reconfirm_grade),
+        #     MessageHandler(Filters.regex("🔴"), english_lessons.english_lessons),
+        # ],
 
-        STATE.RE_COMFIRM_GRADE: [
-            MessageHandler(Filters.regex("🟢"), english_lessons.assign_grade),
-            MessageHandler(Filters.regex("🔴"), english_lessons.english_lessons),
-        ]
+        # STATE.RE_COMFIRM_GRADE: [
+        #     MessageHandler(Filters.regex("🟢"), english_lessons.assign_grade),
+        #     MessageHandler(Filters.regex("🔴"), english_lessons.english_lessons),
+        # ]
     },
     fallbacks=[MessageHandler(Filters.all, mainmenu.return_to_main_menu)]
 
