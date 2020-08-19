@@ -232,7 +232,6 @@ class English:
             # context.user_data[USER.UNIT_MARKS] = None
             # context.user_data[USER.UNIT_CHOSEN] = []
             context.user_data[USER.GRADE] = grade
-            context.user_data[USER.LESSON] = 1
             return self.unit(update, context)
         else:
             return self.invalid_selection(update, context, "grade")

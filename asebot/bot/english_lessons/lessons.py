@@ -25,8 +25,11 @@ class Lessons:
         grade = context.user_data[USER.GRADE]
         unit = context.user_data[USER.UNIT]
         lesson = context.user_data[USER.LESSON]
-        
+        print(grade)
+        print(unit)
+        print(lesson)
         context.user_data["lesson"] = api.load_lesson(grade, unit, lesson)
+        print(context.user_data["lesson"])
         if len(context.user_data["lesson"]) == 0:
             update.message.reply_text(
                 "There are no lessons available at the moment. "

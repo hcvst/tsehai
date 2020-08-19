@@ -49,6 +49,7 @@ def start(update, context):
         #     "Are you ready? Let's get started!"
         # )
         context.user_data[USER.REPEAT_VISITOR] = True
+        context.user_data[USER.LESSON] = 1
     else:
         update.message.reply_text(f"Hello! 👋")
         update.message.reply_text(f"Nice to see you again, {user.first_name}.")
@@ -258,7 +259,12 @@ def quizz_finished(update, context):
     return STATE.BOOK_FINISHED
 
 def next_book_after_quiz(update, context):
-    context.user_data["book_idx"] += 1
+    books = len(context.user_data["books"])
+    newbook = context.user_data["book_idx"] + 1 
+    if newbook < books:
+        context.user_data["book_idx"] += 1
+    elif newbook == books:
+        context.user_data["book_idx"] = 0
     return view_book(update,context)
 
 
@@ -317,12 +323,14 @@ def display_quiz_marks(update, context):
             )
     
     if context.user_data.get(USER.UNIT_MARKS) is not None:
+        print(context.user_data[USER.UNIT_MARKS])
         update.message.reply_text(
             "The averages you got for your english lessons grades Are:\n"
             )
         userGrade = context.user_data[USER.GRADE]
         gradeMarks = context.user_data[USER.UNIT_MARKS][userGrade]
         for grade_elements in gradeMarks:
+            print(gradeMarks[grade_elements])
             numberOfunitquizz = len(gradeMarks[grade_elements])
             averageGrades = 0
             for unit_quiz_marks in gradeMarks[grade_elements]:

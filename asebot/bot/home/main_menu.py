@@ -10,7 +10,7 @@ class MainMenu:
             reply_markup=ReplyKeyboardMarkup([
                 ["🏅 See my medals"],
                 [ "🏛️ I want to read", "📔 I want English lessons"],
-                ["😜 Reset Butt 4 Test"]
+                #["😜 Reset Butt 4 Test"]
             ], one_time_keyboard=False, resize_keyboard=True)
         )
         return STATE.STARTED

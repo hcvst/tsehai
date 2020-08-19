@@ -16,7 +16,10 @@ class UnitQuizz:
         grade = context.user_data[USER.GRADE]
         unit = context.user_data[USER.UNIT]
         context.user_data["unit_quiz"] = api.load_unit_quiz(grade, unit)
+        print(grade)
+        print(unit)
         if len(context.user_data["unit_quiz"]) > 0:
+            print(context.user_data["unit_quiz"])
             level_up.validate_unit_quizz_taken(context)
             context.user_data["unit_quizz_idx"] = 0
             context.user_data["unit_quizz_mistakes"] = 0
@@ -96,13 +99,18 @@ class UnitQuizz:
         userGrade = context.user_data[USER.GRADE]
         self.check_percentage(context, percentageattained)
         numberofquizzes = len(api.load_unit_quiz_length(userGrade))
-        quizlength = len(context.user_data[USER.UNIT_MARKS][userGrade])
+        quizlength = 0
         
+        print(context.user_data[USER.UNIT_MARKS])
+        
+        if context.user_data.get(USER.UNIT_MARKS) is not None:
+            quizlength = len(context.user_data[USER.UNIT_MARKS][userGrade])
+        print("b")
         if percentageattained >= 70 :
             update.message.reply_text(
                 f"Congratulations, you got a {str(medalattained)} medal 🎉."
                 )
-            context.user_data[USER.UNIT_CHOSEN].append(context.user_data[USER.UNIT] + 1)
+            #context.user_data[USER.UNIT_CHOSEN].append(context.user_data[USER.UNIT] + 1)
             update.message.reply_text(f"You can now access a new unit {context.user_data[USER.UNIT] + 1}")
             return level_up.next_unit(update, context)
         elif quizlength == numberofquizzes:
@@ -113,7 +121,7 @@ class UnitQuizz:
                 context.user_data[USER.GRADE] += 1
             #might have to create a grade decision state
             return mainmenu.main_menu(update, context)
-        
+        print("a")
         return self.view_test_results(update, context)
 
     def check_percentage(self,context, percentage):
@@ -127,8 +135,11 @@ class UnitQuizz:
         #     context.user_data[USER.UNIT] : percentage
         #     }
         # else:
-        context.user_data[USER.UNIT_MARKS][userGrade] = {
-            context.user_data[USER.UNIT] : percentage
+
+        context.user_data[USER.UNIT_MARKS] = {
+            userGrade : {
+                context.user_data[USER.UNIT] : percentage
+                }
             }
 
     def view_test_results(self, update, context):
