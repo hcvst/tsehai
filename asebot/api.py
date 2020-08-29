@@ -47,7 +47,8 @@ def load_book(book_id):
         distractors {
           wrong_answer
         }
-        audio
+        audio{url}
+        video{url}
       }
     }
   }

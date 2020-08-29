@@ -60,34 +60,45 @@ class Lessons:
         keyboard = ReplyKeyboardMarkup(
             [
                 ['🏠 Return to main menu'],
-                ['⏭ Skip Unit'],
                 ['➡️ Turn to the next page']
             ],
             one_time_keyboard=False,
             resize_keyboard=True
         )
-        # update.message.reply_markdown(
-        #     "Starting Lesson",
-        #     reply_markup=keyboard
-        # )
-        audio=page["audio"]
-        if len(page["images"]) > 0:
-            if not audio:
-                update.message.reply_photo(
-                    photo=asebot.config.API_SERVER+page["images"][0]["url"],
-                    caption=page["text"],
-                    parse_mode='Markdown',
-                    reply_markup=keyboard
+        if len(page["video"]) > 0:
+            update.message.reply_video(
+                video=asebot.config.API_SERVER+page["video"][0]["url"],
+                #caption=page["text"],
+            )
+        if len(page["images"]) > 0 and len(page["audio"]):
+            update.message.reply_photo(
+                photo=asebot.config.API_SERVER+page["images"][0]["url"],
+                #caption=page["text"],
+                parse_mode='Markdown',
+                reply_markup=keyboard
                 )
-            else:
-                audio_href = asebot.config.API_SERVER+page["images"][0]["url"]
-                print(audio_href)
-                update.message.reply_voice(
-                    audio_href,
-                    caption=page["text"],
-                    reply_markup=keyboard
+            audio_href = asebot.config.API_SERVER+page["audio"][0]["url"]
+            print(audio_href)
+            update.message.reply_voice(
+                audio_href,
+                reply_markup=keyboard
                 )
-        else:
+        elif len(page["images"]) > 0:
+            update.message.reply_photo(
+                photo=asebot.config.API_SERVER+page["images"][0]["url"],
+                #caption=page["text"],
+                parse_mode='Markdown',
+                reply_markup=keyboard
+                )
+        elif len(page["audio"]):
+            audio_href = asebot.config.API_SERVER+page["audio"][0]["url"]
+            print(audio_href)
+            update.message.reply_voice(
+                audio_href,
+                #caption=page["text"],
+                reply_markup=keyboard
+                )
+        if page["text"]:
             update.message.reply_markdown(
                 page["text"],
                 reply_markup=keyboard

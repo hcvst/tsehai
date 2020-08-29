@@ -80,7 +80,7 @@ class ConnectAPI:
                   lessonContents(where: {grade: "%s" unit: "%s" lesson: "%s"}){
                     id
                     recordings{url}
-                    page{images{url} text audio}
+                    page{images{url} text audio{url} video{url}}
                     lesson_quizz{instructions questions {
                       question
                       image {url}
@@ -88,7 +88,8 @@ class ConnectAPI:
                       distractors {
                         wrong_answer
                         }
-                        audio
+                        audio{url}
+                        video{url}
                       }
                     }
                   }
@@ -110,10 +111,11 @@ class ConnectAPI:
               distractors{
                 wrong_answer
                 }
-              audio
+              audio{url}
+              video{url}
               }
             }
-          } """ % (grade, unit)
+          }""" % (grade, unit)
         )
       return client.execute(query)["unitQuizs"]
     

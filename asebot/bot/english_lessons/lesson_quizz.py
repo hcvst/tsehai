@@ -11,8 +11,10 @@ mainmenu = MainMenu()
 level_up = LevelUp()
 
 class LessonQuizz:
+    global quizCheck
+    quizCheck = True
+    
     def start_quizz(self, update, context):
-        update.message.reply_text("start quizz")
         lesson = context.user_data["lesson"]
         if len(lesson) > 0:
             level_up.validate_lesson_quizz_taken(context)
@@ -34,7 +36,6 @@ class LessonQuizz:
     def view_quizz_question(self, update, context):
         lesson_quizz_idx = context.user_data["lesson_quizz_idx"]
         qna = context.user_data["lesson"][0]["lesson_quizz"]["questions"][lesson_quizz_idx]
-        audio = qna["audio"]
         question = qna["question"]
         answers = [qna["answer"]] + [d["wrong_answer"] for d in qna["distractors"]]
         random.shuffle(answers)
@@ -43,22 +44,40 @@ class LessonQuizz:
             [[a] for a in answers],
             one_time_keyboard=False,
             resize_keyboard=True)
-        if qna["image"]:
-            if not audio:
+        
+        if qna["video"]:
+            update.message.reply_video(
+                video=asebot.config.API_SERVER+qna["video"][0]["url"],
+                #caption=text,
+            )
+        
+        if qna["image"] and qna["audio"]:
                 update.message.reply_photo(
                     photo=asebot.config.API_SERVER+qna["image"]["url"],
-                    caption=text,
+                    #caption=text,
                     parse_mode='Markdown',
                     reply_markup=keyboard
                     )
-            else:
-                audio_href = asebot.config.API_SERVER+qna["image"]["url"]
+                audio_href = asebot.config.API_SERVER+qna["audio"]["url"]
                 update.message.reply_voice(
                     audio_href,
-                    caption=text,
                     reply_markup=keyboard
                 )
-        else:
+        elif qna["image"]:
+            update.message.reply_photo(
+                    photo=asebot.config.API_SERVER+qna["image"]["url"],
+                    #caption=text,
+                    parse_mode='Markdown',
+                    reply_markup=keyboard
+                    )
+        elif qna["audio"]:
+            audio_href = asebot.config.API_SERVER+qna["audio"]["url"]
+            update.message.reply_voice(
+                audio_href,
+                #caption=text,
+                reply_markup=keyboard
+                )
+        if text:
             update.message.reply_markdown(text, reply_markup=keyboard)
         return STATE.LESSON_QUIZZ
 
@@ -67,18 +86,27 @@ class LessonQuizz:
         lesson_quizz_idx = context.user_data["lesson_quizz_idx"]
         qna = context.user_data["lesson"][0]["lesson_quizz"]["questions"][lesson_quizz_idx]
         answer = qna["answer"]
+        global quizCheck
+        
         if provided_answer == answer:
             update.message.reply_text("✔️ That is correct.")
-        else:
+            return self.next_quizz_question(update, context)
+        elif provided_answer != answer and quizCheck is True:
+            quizCheck = False
             context.user_data["lesson_quizz_mistakes"] += 1
-            update.message.reply_text(f"❌ The correct answer is '{answer}'.")
-        return self.next_quizz_question(update, context)
+            update.message.reply_text(f"❌ Incorrect. Please try again.")
+            return self.view_quizz_question(update, context)
+        else:
+            update.message.reply_text(f"❌ Incorrect. Please try again.")
+            return self.view_quizz_question(update, context)
 
     def next_quizz_question(self, update, context):
         next_idx = context.user_data["lesson_quizz_idx"] + 1
         if next_idx == len(context.user_data["lesson"][0]["lesson_quizz"]["questions"]):
             return self.quizz_finished(update, context)
         else:
+            global quizCheck
+            quizCheck = True
             context.user_data["lesson_quizz_idx"] = next_idx
             return self.view_quizz_question(update, context)
 
@@ -87,15 +115,20 @@ class LessonQuizz:
         pointsattained = points["points"]
         percentattained = points["percentage"]
         alocate_points(update, pointsattained)
+        pointsChoice = "points"
+        
+        if pointsattained == 1:
+            pointsChoice = "point"
+        
         if percentattained >= 70:
             update.message.reply_text(
-                f"Congratulations, you got {pointsattained} points 🎉."
+                f"Congratulations, you got {pointsattained} {pointsChoice}🎉."
                 )
             update.message.reply_text("You can now got to the next lesson YaY!!!")
             return level_up.next_lesson(update, context)
         elif percentattained <= 69:
             update.message.reply_text(
-                f"Sorry 😔, you got {pointsattained} points but don't worry you can still retry 😃"
+                f"Sorry 😔, you got {pointsattained} {pointsChoice} for this quiz. Don't worry, you can try again.😃"
                 )
             return level_up.retry_lesson(update, context)
         
