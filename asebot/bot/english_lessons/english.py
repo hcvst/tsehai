@@ -170,8 +170,7 @@ class English:
             update.message.reply_text(
                 "Select [Skip] to write the test, or [Next] to begin your lessons",
                 reply_markup=ReplyKeyboardMarkup([
-                    ["🏠 Return To Main Menu"],
-                    ["⏭ Skip","▶ Next"]
+                    ["🏠 Return To Main Menu","▶ Next"]
                     ], one_time_keyboard=False, resize_keyboard=True)
                 )
             # if context.user_data[USER.UNIT] not in context.user_data[USER.UNIT_CHOSEN]:

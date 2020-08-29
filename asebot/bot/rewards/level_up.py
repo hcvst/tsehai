@@ -15,7 +15,7 @@ class LevelUp:
         update.message.reply_text(
             "Select [Main Menu] to go to Main Menu, or [try again] to return to the lesson",
             reply_markup=ReplyKeyboardMarkup([
-                [ "🏠 Main Menu", "😃 try Again"],
+                [ "🏠 Main Menu", "😃 Try Again"],
             ], one_time_keyboard=False, resize_keyboard=True)
         )
         return STATE.RETRY_LESSON
@@ -88,6 +88,7 @@ class LevelUp:
         incorrectanswers = context.user_data["unit_quizz_mistakes"]
         correctanswers = numberofquestions - incorrectanswers
         percentage= round(correctanswers/numberofquestions * 100)
+        
         if percentage == 100:
             medalcalculation = {
                 "medal": "gold",

@@ -12,6 +12,9 @@ level_up = LevelUp()
 api = ConnectAPI()
 
 class UnitQuizz:
+    global quizCheck
+    quizCheck = True
+    
     def start_test(self, update, context):
         grade = context.user_data[USER.GRADE]
         unit = context.user_data[USER.UNIT]
@@ -39,7 +42,6 @@ class UnitQuizz:
     def view_test_question(self, update, context):
         unit_quizz_idx = context.user_data["unit_quizz_idx"]
         qna = context.user_data["unit_quiz"][0]["Questions"][unit_quizz_idx]
-        audio = qna["audio"]
         question = qna["question"]
         answers = [qna["answer"]] + [d["wrong_answer"] for d in qna["distractors"]]
         random.shuffle(answers)
@@ -48,22 +50,43 @@ class UnitQuizz:
             [[a] for a in answers],
             one_time_keyboard=False,
             resize_keyboard=True)
-        if qna["image"]:
-            if not audio:
+        
+        if qna["video"]:
+            audio_href = asebot.config.API_SERVER+qna["video"][0]["url"]
+            update.message.reply_voice(
+                audio_href,
+                #caption=text,
+                reply_markup=keyboard
+            )
+        
+        if qna["image"] and qna["audio"]:
                 update.message.reply_photo(
-                    photo=asebot.config.API_SERVER+qna["image"]["url"],
-                    caption=text,
+                    photo=asebot.config.API_SERVER+qna["image"][0]["url"],
+                    #caption=text,
                     parse_mode='Markdown',
                     reply_markup=keyboard
                     )
-            else:
-                audio_href = asebot.config.API_SERVER+qna["image"]["url"]
+                audio_href = asebot.config.API_SERVER+qna["audio"][0]["url"]
                 update.message.reply_voice(
                     audio_href,
-                    caption=text,
+                    #caption=text,
                     reply_markup=keyboard
                 )
-        else:
+        elif qna["image"]:
+            update.message.reply_photo(
+                    photo=asebot.config.API_SERVER+qna["image"][0]["url"],
+                    #caption=text,
+                    parse_mode='Markdown',
+                    reply_markup=keyboard
+                    )
+        elif qna["audio"]:
+            audio_href = asebot.config.API_SERVER+qna["audio"][0]["url"]
+            update.message.reply_voice(
+                audio_href,
+                #caption=text,
+                reply_markup=keyboard
+            )
+        if text:
             update.message.reply_markdown(text, reply_markup=keyboard)
         return STATE.UNIT_QUIZZ
 
@@ -72,18 +95,27 @@ class UnitQuizz:
         unit_quizz_idx = context.user_data["unit_quizz_idx"]
         qna = context.user_data["unit_quiz"][0]["Questions"][unit_quizz_idx]
         answer = qna["answer"]
+        global quizCheck
+        
         if provided_answer == answer:
             update.message.reply_text("✔️ That is correct.")
-        else:
+            return self.next_test_question(update, context)
+        elif provided_answer != answer and quizCheck is True:
+            quizCheck = False
             context.user_data["unit_quizz_mistakes"] += 1
-            update.message.reply_text(f"❌ The correct answer is '{answer}'.")
-        return self.next_test_question(update, context)
+            update.message.reply_text(f"❌ Incorrect. Please try again.")
+            return self.view_test_question(update, context)
+        else:
+            update.message.reply_text(f"❌ Incorrect. Please try again.")
+            return self.view_test_question(update, context)
 
     def next_test_question(self, update, context):
         next_idx = context.user_data["unit_quizz_idx"] + 1
         if next_idx == len(context.user_data["unit_quiz"][0]["Questions"]):
             return self.test_finished(update, context)
         else:
+            global quizCheck
+            quizCheck = True
             context.user_data["unit_quizz_idx"] = next_idx
             return self.view_test_question(update, context)
 
@@ -98,73 +130,73 @@ class UnitQuizz:
         #if percentageattained >= 70:
         userGrade = context.user_data[USER.GRADE]
         self.check_percentage(context, percentageattained)
-        numberofquizzes = len(api.load_unit_quiz_length(userGrade))
+        numberofquizzes = len(api.load_unit_quiz_length(userGrade)["unitQuizs"])
+        print("QN")
+        print(numberofquizzes)
         quizlength = 0
         
         print(context.user_data[USER.UNIT_MARKS])
-        
         if context.user_data.get(USER.UNIT_MARKS) is not None:
             quizlength = len(context.user_data[USER.UNIT_MARKS][userGrade])
         print("b")
-        if percentageattained >= 70 :
-            update.message.reply_text(
-                f"Congratulations, you got a {str(medalattained)} medal 🎉."
-                )
-            #context.user_data[USER.UNIT_CHOSEN].append(context.user_data[USER.UNIT] + 1)
-            update.message.reply_text(f"You can now access a new unit {context.user_data[USER.UNIT] + 1}")
-            return level_up.next_unit(update, context)
-        elif quizlength == numberofquizzes:
+        if quizlength == numberofquizzes and percentageattained >= 70:
             update.message.reply_text(f"You have unlocked a new grade {context.user_data[USER.GRADE] + 1}, Congratulations 🎉.")
             if  context.user_data[USER.GRADE] + 1 == 9:
                 update.message.reply_text(f"You are Done with english lessons, but you can still access any grade and the library😜😜😜")
             else:
                 context.user_data[USER.GRADE] += 1
-            #might have to create a grade decision state
             return mainmenu.main_menu(update, context)
+        elif percentageattained >= 70 :
+            update.message.reply_text(
+                f"Congratulations, you got a {str(medalattained)} medal 🎉."
+                )
+            update.message.reply_text(f"You can now access a new unit {context.user_data[USER.UNIT] + 1}")
+            return level_up.next_unit(update, context)
         print("a")
         return self.view_test_results(update, context)
 
     def check_percentage(self,context, percentage):
         userGrade = context.user_data[USER.GRADE]
-        # if context.user_data[USER.UNIT_MARKS] is not None:
-        #     # if context.user_data[USER.UNIT] in context.user_data[USER.UNIT_MARKS].keys():
-        #     #     if percentage > context.user_data[USER.UNIT_MARKS][context.user_data[USER.UNIT]]:
-        #     #         context.user_data[USER.UNIT_MARKS][context.user_data[USER.UNIT]] = percentage
-        #     # else:
-        #     context.user_data[USER.UNIT_MARKS][userGrade] = {
-        #     context.user_data[USER.UNIT] : percentage
-        #     }
-        # else:
-
-        context.user_data[USER.UNIT_MARKS] = {
-            userGrade : {
+        if context.user_data.get(USER.UNIT_MARKS) is not None:
+            if userGrade in context.user_data[USER.UNIT_MARKS].keys():
+                if context.user_data[USER.UNIT] in context.user_data[USER.UNIT_MARKS][userGrade].keys():
+                    if percentage > context.user_data[USER.UNIT_MARKS][userGrade][context.user_data[USER.UNIT]]:
+                        context.user_data[USER.UNIT_MARKS][context.user_data[USER.UNIT]] = percentage
+                else:
+                    context.user_data[USER.UNIT_MARKS][userGrade][context.user_data[USER.UNIT]] = percentage
+            else:
+                context.user_data[USER.UNIT_MARKS][userGrade] = {
                 context.user_data[USER.UNIT] : percentage
                 }
-            }
+        else:
+            context.user_data[USER.UNIT_MARKS] = {
+                userGrade : {
+                    context.user_data[USER.UNIT] : percentage
+                    }
+                }
 
     def view_test_results(self, update, context):
-        update.message.reply_text("results")
+        userGrade = context.user_data[USER.GRADE]
         if context.user_data[USER.UNIT_MARKS] is not None:
-            update.message.reply_text("These are the quizzes you have written and passed.\n")
-            update.message.reply_text("Good Luck on the next one's 😃")
-            results = context.user_data[USER.UNIT_MARKS].sort()
+            update.message.reply_text("These are your unit quiz Results")
+            results = context.user_data[USER.UNIT_MARKS][userGrade]
             for elements in results:
-                update.message.reply_text("These are your unit quiz Results")
-                update.message.reply_text(f"units:{elements} results:{results[elements]}")
+                update.message.reply_text(f"For unit:{elements} your results are: {results[elements]}")
             
+            update.message.reply_text("Good Luck on the next one.😃")
             update.message.reply_text(
-                "Select [Main Menu] to go to Main Menu, or [try again] to return to the unit",
+                "Select [Main Menu] to go to Main Menu, or [Try again] to return to the unit",
                 reply_markup=ReplyKeyboardMarkup([
-                    [ "🏠 Main Menu", "😃 try Again"],
+                    [ "🏠 Main Menu", "😃 Try Again"],
                     ], one_time_keyboard=False, resize_keyboard=True)
                 )
         else:
             update.message.reply_text("Sorry you haven't passed any quizzes at the moment\n")
-            update.message.reply_text("Good Luck on the next one's 😃")
+            update.message.reply_text("Good Luck on the next one.😃")
             update.message.reply_text(
-                "Select [Main Menu] to go to Main Menu, or [try again] to return to the unit",
+                "Select [Main Menu] to go to Main Menu, or [Try again] to return to the unit",
                 reply_markup=ReplyKeyboardMarkup([
-                    [ "🏠 Main Menu", "😃 try Again"],
+                    [ "🏠 Main Menu", "😃 Try Again"],
                     ], one_time_keyboard=False, resize_keyboard=True)
                 )
         return STATE.RETRY_UNIT

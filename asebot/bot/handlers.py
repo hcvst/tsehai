@@ -166,11 +166,12 @@ def start_quizz(update, context):
     else:
         return mainmenu.main_menu(update, context)
 
+global quizCheck
+quizCheck = True
 
 def view_quizz_question(update, context):
     quizz_idx = context.user_data["quizz_idx"]
     qna = context.user_data["book"]["quizz"]["questions"][quizz_idx]
-    audio = qna["audio"]
     question = qna["question"]
     answers = [qna["answer"]] + [d["wrong_answer"] for d in qna["distractors"]]
     random.shuffle(answers)
@@ -179,22 +180,40 @@ def view_quizz_question(update, context):
         [[a] for a in answers],
         one_time_keyboard=False,
         resize_keyboard=True)
-    if qna["image"]:
-        if not audio:
-            update.message.reply_photo(
-                photo=asebot.config.API_SERVER+qna["image"]["url"],
+    
+    if len(qna["video"]) > 0:
+            update.message.reply_video(
+                video=asebot.config.API_SERVER+qna["video"][0]["url"],
+                caption=text,
+            )
+            
+    if qna["image"] and qna["audio"]:
+                update.message.reply_photo(
+                    photo=asebot.config.API_SERVER+qna["image"][0]["url"],
+                    caption=text,
+                    parse_mode='Markdown',
+                    reply_markup=keyboard
+                    )
+                audio_href = asebot.config.API_SERVER+qna["audio"][0]["url"]
+                update.message.reply_voice(
+                    audio_href,
+                    reply_markup=keyboard
+                )
+    elif qna["image"]:
+        update.message.reply_photo(
+                photo=asebot.config.API_SERVER+qna["image"][0]["url"],
                 caption=text,
                 parse_mode='Markdown',
                 reply_markup=keyboard
                 )
-        else:
-            audio_href = asebot.config.API_SERVER+qna["image"]["url"]
-            update.message.reply_voice(
-                audio_href,
-                caption=text,
-                reply_markup=keyboard
+    elif qna["audio"]:
+        audio_href = asebot.config.API_SERVER+qna["audio"][0]["url"]
+        update.message.reply_voice(
+            audio_href,
+            caption=text,
+            reply_markup=keyboard
             )
-    else:
+    if text:
         update.message.reply_markdown(text, reply_markup=keyboard)
     return STATE.QUIZZ
 
@@ -204,13 +223,19 @@ def check_quizz_answer(update, context):
     quizz_idx = context.user_data["quizz_idx"]
     qna = context.user_data["book"]["quizz"]["questions"][quizz_idx]
     answer = qna["answer"]
+    global quizCheck
 
     if provided_answer == answer:
         update.message.reply_text("✔️ That is correct.")
-    else:
+        return next_quizz_question(update, context)
+    elif provided_answer != answer and quizCheck is True:
+        quizCheck = False
         context.user_data["quizz_mistakes"] += 1
-        update.message.reply_text(f"❌ The correct answer is '{answer}'.")
-    return next_quizz_question(update, context)
+        update.message.reply_text(f"❌ Incorrect. Please try again.")
+        return view_quizz_question(update, context)
+    else:
+        update.message.reply_text(f"❌ Incorrect. Please try again.")
+        return view_quizz_question(update, context)
 
 
 def next_quizz_question(update, context):
@@ -218,6 +243,8 @@ def next_quizz_question(update, context):
     if next_idx == len(context.user_data["book"]["quizz"]["questions"]):
         return quizz_finished(update, context)
     else:
+        global quizCheck
+        quizCheck = True
         context.user_data["quizz_idx"] = next_idx
         return view_quizz_question(update, context)
 
@@ -327,10 +354,8 @@ def display_quiz_marks(update, context):
         update.message.reply_text(
             "The averages you got for your english lessons grades Are:\n"
             )
-        userGrade = context.user_data[USER.GRADE]
-        gradeMarks = context.user_data[USER.UNIT_MARKS][userGrade]
+        gradeMarks = context.user_data[USER.UNIT_MARKS]
         for grade_elements in gradeMarks:
-            print(gradeMarks[grade_elements])
             numberOfunitquizz = len(gradeMarks[grade_elements])
             averageGrades = 0
             for unit_quiz_marks in gradeMarks[grade_elements]:
@@ -448,8 +473,8 @@ root_conversation = ConversationHandler(
         # ],
 
         STATE.LESSON: [
-            MessageHandler(Filters.regex("🏠"), mainmenu.main_menu),
-            MessageHandler(Filters.regex("⏭"), inprogress_lesson.skip_unit),
+           # MessageHandler(Filters.regex("🏠"), mainmenu.main_menu),
+            MessageHandler(Filters.regex("🏠"), inprogress_lesson.skip_unit),
             MessageHandler(Filters.regex("➡️"), inprogress_lesson.next),
             MessageHandler(Filters.regex("▶"), english_lessons.proceed)
         ],
