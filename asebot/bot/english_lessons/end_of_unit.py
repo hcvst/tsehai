@@ -61,7 +61,7 @@ class UnitQuizz:
         
         if qna["image"] and qna["audio"]:
                 update.message.reply_photo(
-                    photo=asebot.config.API_SERVER+qna["image"][0]["url"],
+                    photo=asebot.config.API_SERVER+qna["image"]["url"],
                     #caption=text,
                     parse_mode='Markdown',
                     reply_markup=keyboard
@@ -74,7 +74,7 @@ class UnitQuizz:
                 )
         elif qna["image"]:
             update.message.reply_photo(
-                    photo=asebot.config.API_SERVER+qna["image"][0]["url"],
+                    photo=asebot.config.API_SERVER+qna["image"]["url"],
                     #caption=text,
                     parse_mode='Markdown',
                     reply_markup=keyboard
@@ -127,18 +127,15 @@ class UnitQuizz:
         context.user_data.setdefault(
             "medals", dict(gold=0, silver=0, bronze=0,nomedal=0)
             )[f"{medalattained}"] += 1
-        #if percentageattained >= 70:
         userGrade = context.user_data[USER.GRADE]
         self.check_percentage(context, percentageattained)
         numberofquizzes = len(api.load_unit_quiz_length(userGrade)["unitQuizs"])
-        print("QN")
-        print(numberofquizzes)
         quizlength = 0
         
         print(context.user_data[USER.UNIT_MARKS])
         if context.user_data.get(USER.UNIT_MARKS) is not None:
             quizlength = len(context.user_data[USER.UNIT_MARKS][userGrade])
-        print("b")
+        
         if quizlength == numberofquizzes and percentageattained >= 70:
             update.message.reply_text(f"You have unlocked a new grade {context.user_data[USER.GRADE] + 1}, Congratulations 🎉.")
             if  context.user_data[USER.GRADE] + 1 == 9:
@@ -152,16 +149,15 @@ class UnitQuizz:
                 )
             update.message.reply_text(f"You can now access a new unit {context.user_data[USER.UNIT] + 1}")
             return level_up.next_unit(update, context)
-        print("a")
         return self.view_test_results(update, context)
 
     def check_percentage(self,context, percentage):
         userGrade = context.user_data[USER.GRADE]
         if context.user_data.get(USER.UNIT_MARKS) is not None:
             if userGrade in context.user_data[USER.UNIT_MARKS].keys():
-                if context.user_data[USER.UNIT] in context.user_data[USER.UNIT_MARKS][userGrade].keys():
+                if context.user_data[USER.UNIT] in context.user_data[USER.UNIT_MARKS].keys():
                     if percentage > context.user_data[USER.UNIT_MARKS][userGrade][context.user_data[USER.UNIT]]:
-                        context.user_data[USER.UNIT_MARKS][context.user_data[USER.UNIT]] = percentage
+                        context.user_data[USER.UNIT_MARKS][userGrade][context.user_data[USER.UNIT]] = percentage
                 else:
                     context.user_data[USER.UNIT_MARKS][userGrade][context.user_data[USER.UNIT]] = percentage
             else:

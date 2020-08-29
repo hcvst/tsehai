@@ -184,13 +184,13 @@ def view_quizz_question(update, context):
     if len(qna["video"]) > 0:
             update.message.reply_video(
                 video=asebot.config.API_SERVER+qna["video"][0]["url"],
-                caption=text,
+                #caption=text,
             )
             
     if qna["image"] and qna["audio"]:
                 update.message.reply_photo(
-                    photo=asebot.config.API_SERVER+qna["image"][0]["url"],
-                    caption=text,
+                    photo=asebot.config.API_SERVER+qna["image"]["url"],
+                    #caption=text,
                     parse_mode='Markdown',
                     reply_markup=keyboard
                     )
@@ -201,8 +201,8 @@ def view_quizz_question(update, context):
                 )
     elif qna["image"]:
         update.message.reply_photo(
-                photo=asebot.config.API_SERVER+qna["image"][0]["url"],
-                caption=text,
+                photo=asebot.config.API_SERVER+qna["image"]["url"],
+                #caption=text,
                 parse_mode='Markdown',
                 reply_markup=keyboard
                 )
@@ -210,7 +210,7 @@ def view_quizz_question(update, context):
         audio_href = asebot.config.API_SERVER+qna["audio"][0]["url"]
         update.message.reply_voice(
             audio_href,
-            caption=text,
+            #caption=text,
             reply_markup=keyboard
             )
     if text:
@@ -341,7 +341,7 @@ def display_quiz_marks(update, context):
                     f"Book Id = /{books[book_elements]['book_idx']} Book Title = {books[book_elements]['title']}  results =  {result} percentage = {books[book_elements]['percentage']}"
                     )
         update.message.reply_text(
-            f"Your average at the moment is {average/numberOfquizz}\n"
+            f"Your average at the moment for book quizzes is {average/numberOfquizz}\n"
             )
     elif numberOfquizz == 0:
         update.message.reply_text(

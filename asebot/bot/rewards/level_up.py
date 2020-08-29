@@ -88,7 +88,6 @@ class LevelUp:
         incorrectanswers = context.user_data["unit_quizz_mistakes"]
         correctanswers = numberofquestions - incorrectanswers
         percentage= round(correctanswers/numberofquestions * 100)
-        
         if percentage == 100:
             medalcalculation = {
                 "medal": "gold",
