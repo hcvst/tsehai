@@ -47,7 +47,7 @@ class LessonQuizz:
         
         if qna["video"]:
             update.message.reply_video(
-                video=asebot.config.API_SERVER+qna["video"][0]["url"],
+                video=qna["video"],
                 #caption=text,
             )
         

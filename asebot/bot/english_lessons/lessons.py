@@ -67,7 +67,7 @@ class Lessons:
         )
         if len(page["video"]) > 0:
             update.message.reply_video(
-                video=asebot.config.API_SERVER+page["video"][0]["url"],
+                video=page["video"],
                 #caption=page["text"],
             )
         if len(page["images"]) > 0 and len(page["audio"]):

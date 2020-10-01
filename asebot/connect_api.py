@@ -80,7 +80,7 @@ class ConnectAPI:
                   lessonContents(where: {grade: "%s" unit: "%s" lesson: "%s"}){
                     id
                     recordings{url}
-                    page{images{url} text audio{url} video{url}}
+                    page{images{url} text audio{url} video}
                     lesson_quizz{instructions questions {
                       question
                       image {url}
@@ -89,7 +89,7 @@ class ConnectAPI:
                         wrong_answer
                         }
                         audio{url}
-                        video{url}
+                        video
                       }
                     }
                   }
@@ -112,7 +112,7 @@ class ConnectAPI:
                 wrong_answer
                 }
               audio{url}
-              video{url}
+              video
               }
             }
           }""" % (grade, unit)
