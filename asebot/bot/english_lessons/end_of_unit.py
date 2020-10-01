@@ -52,7 +52,7 @@ class UnitQuizz:
             resize_keyboard=True)
         
         if qna["video"]:
-            audio_href = asebot.config.API_SERVER+qna["video"][0]["url"]
+            audio_href = qna["video"]
             update.message.reply_voice(
                 audio_href,
                 #caption=text,

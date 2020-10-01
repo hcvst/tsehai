@@ -183,7 +183,7 @@ def view_quizz_question(update, context):
     
     if len(qna["video"]) > 0:
             update.message.reply_video(
-                video=asebot.config.API_SERVER+qna["video"][0]["url"],
+                video=qna["video"][0]["url"],
                 #caption=text,
             )
             
@@ -473,8 +473,8 @@ root_conversation = ConversationHandler(
         # ],
 
         STATE.LESSON: [
-           # MessageHandler(Filters.regex("🏠"), mainmenu.main_menu),
-            MessageHandler(Filters.regex("🏠"), inprogress_lesson.skip_unit),
+           MessageHandler(Filters.regex("🏠"), mainmenu.main_menu),
+            #MessageHandler(Filters.regex("🏠"), inprogress_lesson.skip_unit),
             MessageHandler(Filters.regex("➡️"), inprogress_lesson.next),
             MessageHandler(Filters.regex("▶"), english_lessons.proceed)
         ],

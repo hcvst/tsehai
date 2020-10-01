@@ -166,9 +166,9 @@ class English:
             # context.user_data[USER.FINAL_UNIT] = None
             # context.user_data[USER.TEMP_UNIT] = None
             update.message.reply_text(f"You have selected unit {context.user_data[USER.UNIT]}")
-            update.message.reply_text("You can choose to skip this unit by taking a unit test")
+            #update.message.reply_text("You can choose to skip this unit by taking a unit test")
             update.message.reply_text(
-                "Select [Skip] to write the test, or [Next] to begin your lessons",
+                "Select [Return To Main Menu] to return Home, or [Next] to begin your lessons",
                 reply_markup=ReplyKeyboardMarkup([
                     ["🏠 Return To Main Menu","▶ Next"]
                     ], one_time_keyboard=False, resize_keyboard=True)

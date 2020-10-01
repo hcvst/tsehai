@@ -48,7 +48,7 @@ def load_book(book_id):
           wrong_answer
         }
         audio{url}
-        video{url}
+        video
       }
     }
   }
