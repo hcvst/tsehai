@@ -68,6 +68,7 @@ class Lessons:
         if len(page["video"]) > 0:
             update.message.reply_video(
                 video=page["video"],
+                reply_markup=keyboard
                 #caption=page["text"],
             )
         if len(page["images"]) > 0 and len(page["audio"]):
