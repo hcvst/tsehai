@@ -65,13 +65,14 @@ class Lessons:
             one_time_keyboard=False,
             resize_keyboard=True
         )
-        if len(page["video"]) > 0:
+
+        if page["video"]:
             update.message.reply_video(
                 video=page["video"],
                 reply_markup=keyboard
                 #caption=page["text"],
             )
-        if len(page["images"]) > 0 and len(page["audio"]):
+        if page["images"] and page["audio"]:
             update.message.reply_photo(
                 photo=asebot.config.API_SERVER+page["images"][0]["url"],
                 #caption=page["text"],
@@ -84,14 +85,14 @@ class Lessons:
                 audio_href,
                 reply_markup=keyboard
                 )
-        elif len(page["images"]) > 0:
+        elif page["images"]:
             update.message.reply_photo(
                 photo=asebot.config.API_SERVER+page["images"][0]["url"],
                 #caption=page["text"],
                 parse_mode='Markdown',
                 reply_markup=keyboard
                 )
-        elif len(page["audio"]):
+        elif page["audio"]:
             audio_href = asebot.config.API_SERVER+page["audio"][0]["url"]
             print(audio_href)
             update.message.reply_voice(

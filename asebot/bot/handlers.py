@@ -181,7 +181,7 @@ def view_quizz_question(update, context):
         one_time_keyboard=False,
         resize_keyboard=True)
     
-    if len(qna["video"]) > 0:
+    if qna["video"]:
             update.message.reply_video(
                 video=qna["video"][0]["url"],
                 #caption=text,
