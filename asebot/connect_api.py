@@ -129,3 +129,14 @@ class ConnectAPI:
           } """ % (grade)
         )
       return client.execute(query)
+
+    def load_lesson_length(self,grade,unit):
+      query = gql(
+       """ 
+        {
+         lessonContents(where:{grade:"%s" unit: "%s"}){
+            id
+            }
+          } """ % (grade,unit)
+        )
+      return client.execute(query)

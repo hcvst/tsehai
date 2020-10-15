@@ -1,11 +1,14 @@
 import random
 import asebot.config
+import re 
 from telegram import (InlineKeyboardButton, InlineKeyboardMarkup,
                       ReplyKeyboardMarkup)
 from asebot.constants import STATE, USER
 from asebot.bot.home.main_menu import MainMenu
 from asebot.bot.rewards.level_up import LevelUp
 from asebot.bot.alocate_points import alocate_points
+from asebot.bot.components.special_characters import SpecialCharacters
+
 
 mainmenu = MainMenu()
 level_up = LevelUp()
@@ -13,10 +16,13 @@ level_up = LevelUp()
 class LessonQuizz:
     global quizCheck
     quizCheck = True
+
+    global regex
+    regex = re.compile('[@_!#$%^&()<>/\|}{~]')
     
     def start_quizz(self, update, context):
         lesson = context.user_data["lesson"]
-        if len(lesson) > 0:
+        if lesson:
             level_up.validate_lesson_quizz_taken(context)
             context.user_data["lesson_quizz_idx"] = 0
             context.user_data["lesson_quizz_mistakes"] = 0
@@ -34,6 +40,7 @@ class LessonQuizz:
             return mainmenu.main_menu(update, context)
 
     def view_quizz_question(self, update, context):
+        global regex
         lesson_quizz_idx = context.user_data["lesson_quizz_idx"]
         qna = context.user_data["lesson"][0]["lesson_quizz"]["questions"][lesson_quizz_idx]
         question = qna["question"]
@@ -78,7 +85,11 @@ class LessonQuizz:
                 reply_markup=keyboard
                 )
         if text:
-            update.message.reply_markdown(text, reply_markup=keyboard)
+            text = SpecialCharacters.checkSpecialCharacter(SpecialCharacters, text)
+            update.message.reply_markdown(
+                text,
+                reply_markup=keyboard
+            )
         return STATE.LESSON_QUIZZ
 
     def check_quizz_answer(self, update, context):
@@ -124,7 +135,6 @@ class LessonQuizz:
             update.message.reply_text(
                 f"Congratulations, you got {pointsattained} {pointsChoice}🎉."
                 )
-            update.message.reply_text("You can now got to the next lesson YaY!!!")
             return level_up.next_lesson(update, context)
         elif percentattained <= 69:
             update.message.reply_text(

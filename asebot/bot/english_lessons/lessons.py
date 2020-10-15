@@ -28,6 +28,10 @@ class Lessons:
         print(grade)
         print(unit)
         print(lesson)
+       
+        if lesson > len(api.load_lesson_length(grade,unit)["lessonContents"]):
+            return self.skip_unit(update,context)
+        
         context.user_data["lesson"] = api.load_lesson(grade, unit, lesson)
         print(context.user_data["lesson"])
         if len(context.user_data["lesson"]) == 0:
@@ -67,10 +71,13 @@ class Lessons:
         )
 
         if page["video"]:
+            print("Page---")
+            print(page["video"])
             update.message.reply_video(
-                video=page["video"],
+                # video=page["video"],
+                video = page["video"],
+                parse_mode='Markdown',
                 reply_markup=keyboard
-                #caption=page["text"],
             )
         if page["images"] and page["audio"]:
             update.message.reply_photo(

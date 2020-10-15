@@ -41,6 +41,7 @@ class UnitQuizz:
 
     def view_test_question(self, update, context):
         unit_quizz_idx = context.user_data["unit_quizz_idx"]
+        qna = None
         qna = context.user_data["unit_quiz"][0]["Questions"][unit_quizz_idx]
         question = qna["question"]
         answers = [qna["answer"]] + [d["wrong_answer"] for d in qna["distractors"]]
@@ -56,7 +57,7 @@ class UnitQuizz:
             update.message.reply_voice(
                 audio_href,
                 #caption=text,
-                reply_markup=keyboard
+                 reply_markup=keyboard
             )
         
         if qna["image"] and qna["audio"]:
@@ -120,7 +121,6 @@ class UnitQuizz:
             return self.view_test_question(update, context)
 
     def test_finished(self, update, context):
-        update.message.reply_text("finished")
         medal = level_up.points_medals_unit_quiz(context)
         medalattained = medal['medal']
         percentageattained = medal['percentage']
