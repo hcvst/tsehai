@@ -28,6 +28,7 @@ class Lessons:
         print(grade)
         print(unit)
         print(lesson)
+
        
         if lesson > len(api.load_lesson_length(grade,unit)["lessonContents"]):
             return self.skip_unit(update,context)

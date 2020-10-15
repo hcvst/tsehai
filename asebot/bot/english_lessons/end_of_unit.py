@@ -155,7 +155,7 @@ class UnitQuizz:
         userGrade = context.user_data[USER.GRADE]
         if context.user_data.get(USER.UNIT_MARKS) is not None:
             if userGrade in context.user_data[USER.UNIT_MARKS].keys():
-                if context.user_data[USER.UNIT] in context.user_data[USER.UNIT_MARKS].keys():
+                if context.user_data[USER.UNIT] in context.user_data[USER.UNIT_MARKS][userGrade].keys():
                     if percentage > context.user_data[USER.UNIT_MARKS][userGrade][context.user_data[USER.UNIT]]:
                         context.user_data[USER.UNIT_MARKS][userGrade][context.user_data[USER.UNIT]] = percentage
                 else:
