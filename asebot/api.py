@@ -32,6 +32,7 @@ def load_book(book_id):
     query = gql('''
 {
   book(id: %s) {
+    title
     pages {
       text
       images {
@@ -46,12 +47,42 @@ def load_book(book_id):
         distractors {
           wrong_answer
         }
+        audio{url}
+        video
       }
     }
   }
 }
     ''' % book_id)
     return client.execute(query)["book"]
+
+def load_level_Selection():
+    query = gql('''
+        {
+          levelSelectionPictures {
+            id
+            Image {url}
+          }
+        }
+    ''')
+    return client.execute(query)['levelSelectionPictures']
+
+def load_books_on_level(book_level_id):
+    query = gql('''
+      {
+        books(sort: "title", where: { level: {id: %s}  }) {
+            id
+            title
+    level {name id}
+            cover {
+            url
+            }
+
+        }
+        }
+    ''' % book_level_id)
+    return client.execute(query)["books"]
+
 
 
 
